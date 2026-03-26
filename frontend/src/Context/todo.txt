@@ -1,0 +1,14 @@
+add a library for dp
+
+and like and save
+and on login show save posts section 
+also increament of every thing but after the authentication is done>>>>>>>>>>>>>>>>>>>>>>>
+
+
+and also after doing context the img is not loading it is showing that pic is not available or simply that page is not found
+
+
+Topic signals
+1... add img field in account also from profile 
+2... fetch category from profile and account
+3... also set that if user have created a  account recently then it should have a empty profile..... basically by saving the account it should have to save the profile auto
