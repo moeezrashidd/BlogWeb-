@@ -25,7 +25,7 @@ def users_view(request):
 @api_view(["GET", "POST"])
 def posts_view(request):
     if request.method == "GET":
-        data = Posts.objects.all()  # ✅ fixed
+        data = Posts.objects.all()  
         serializer = PostsSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -41,7 +41,7 @@ def posts_view(request):
 @api_view(["GET", "POST"])
 def profiles_view(request):
     if request.method == "GET":
-        data = Profiles.objects.all()  # ✅ fixed
+        data = Profiles.objects.all()  
         serializer = ProfilesSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

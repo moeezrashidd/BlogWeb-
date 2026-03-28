@@ -1,4 +1,5 @@
 from django.db import  models
+from PIL import Image, ImageDraw
 class Users(models.Model):
     id = models.AutoField(primary_key = True)
     name = models.CharField(max_length= 30)
@@ -30,6 +31,24 @@ class Profiles(models.Model):
     following = models.PositiveIntegerField(default= 0)
     likes = models.PositiveIntegerField(default= 0)
     posts = models.PositiveIntegerField(default= 0)
+    
+    def uploadPhoto(self,*args , **kwargs):
+        super.save(*args , **kwargs)
+        
+        image = Image.open(self.image.path).convert("RGBA")
+        
+        size = min(image.size)
+        
+        left = (image.width - size) //2
+        top = (image.height-size )//2
+        right = left + size
+        bottom = top +size
+        
+        image.crop((left,top,right,bottom))
+        
+        image.save(self.image.path.replace(".jpg "," .png") , format="PNG")
+        
+        
 
 class Posts(models.Model):
     id= models.AutoField(primary_key=True)   
