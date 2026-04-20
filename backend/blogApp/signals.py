@@ -1,5 +1,6 @@
+from django.core.mail import send_mail
 from django.dispatch import receiver
-from django.db.models.signals import pre_save ,post_save , post_delete
+from django.db.models.signals import pre_save ,post_save , post_delete , pre_delete
 from .models import Users , Profiles , Posts ,deletionAudits
 import os
 from django_currentuser.middleware import get_current_user
@@ -7,7 +8,6 @@ from django.forms.models import model_to_dict
 @receiver(post_save , sender=Users)
 def sendPreSaveMail(sender,instance , created ,**kwargs):
     if created:
-        from django.core.mail import send_mail
         send_mail(
             'Welcome to MR_blog',
             f'Thanks {instance.name} for joining our platfrom',
@@ -21,14 +21,20 @@ def sendPreSaveMail(sender,instance , created ,**kwargs):
 def Create_Profile(sender , instance , created ,**kwargs):
     if created:
         Profiles.objects.create(instance = Users)
-        
-@receiver(post_delete , sender=Users)        
+   
+                    
+@receiver(pre_delete , sender=Users)
+@receiver(pre_delete , sender=Posts)
+@receiver(pre_delete , sender=Profiles)       
 def deleteFilesOnDelete(sender , instance  , **kwargs):
     if instance.file:
         if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
-            
-@receiver(post_delete , sender=Users)
+    
+                    
+@receiver(pre_delete , sender=Users)
+@receiver(pre_delete , sender=Posts)
+@receiver(pre_delete , sender=Profiles)
 def creatingAudit(sender, instance ,**kwargs):
     deletionAudits.objects.create(
         model_name = sender.__name__,
@@ -39,3 +45,16 @@ def creatingAudit(sender, instance ,**kwargs):
     )
     
                     
+                    
+@receiver(pre_delete , sender=Users)
+@receiver(pre_delete , sender=Posts)
+@receiver(pre_delete , sender=Profiles)
+def msgOfdeletion(sender, instance , ** kwargs):
+    send_mail(
+        f'Delete {sender.__name__}',
+        "your Account on MR-Blog is deleted successfully",
+        "moeezrashidd@gmail.com",
+        [instance.email],
+        fail_silently=True,
+    )
+    
