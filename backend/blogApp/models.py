@@ -58,4 +58,9 @@ class Posts(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
    
-     
+   
+class deletionAudits(models.Model):
+    model_name = models.CharField(max_length=200)
+    obj_id= models.IntegerField()
+    DeletedBy = models.CharField(max_length=200)
+    data = models.JSONField()

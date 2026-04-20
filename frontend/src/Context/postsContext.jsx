@@ -22,7 +22,7 @@ export const PostProvider = ({ children }) => {
         getdata()
 
     }, [])
-
+    console.log(postData)
 
 
 

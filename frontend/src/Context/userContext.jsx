@@ -13,6 +13,7 @@ export const UserProvider = ({ children }) => {
         async function getdata() {
             try {
                 const response = await axios.get("http://127.0.0.1:8000/users/")
+                console.log(response)
                 setUserData(response.data)
 
             } catch (error) {
@@ -28,6 +29,7 @@ export const UserProvider = ({ children }) => {
 
 
     }, [])
+
     return (
         <userContext.Provider value={{ userData, Loading, error }}>
             {children}
