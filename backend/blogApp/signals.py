@@ -24,17 +24,16 @@ def Create_Profile(sender , instance , created ,**kwargs):
    
                     
 @receiver(pre_delete , sender=Users)
-@receiver(pre_delete , sender=Posts)
-@receiver(pre_delete , sender=Profiles)       
-def deleteFilesOnDelete(sender , instance  , **kwargs):
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
-    
+@receiver(pre_delete , sender=Posts)       
+def deleteFilesOnDelete(sender, instance, **kwargs):
+    file_field = getattr(instance, "file", None)
+
+    if file_field and file_field.name:
+        if os.path.isfile(file_field.path):
+            os.remove(file_field.path)
                     
 @receiver(pre_delete , sender=Users)
 @receiver(pre_delete , sender=Posts)
-@receiver(pre_delete , sender=Profiles)
 def creatingAudit(sender, instance ,**kwargs):
     deletionAudits.objects.create(
         model_name = sender.__name__,
@@ -48,7 +47,6 @@ def creatingAudit(sender, instance ,**kwargs):
                     
 @receiver(pre_delete , sender=Users)
 @receiver(pre_delete , sender=Posts)
-@receiver(pre_delete , sender=Profiles)
 def msgOfdeletion(sender, instance , ** kwargs):
     send_mail(
         f'Delete {sender.__name__}',

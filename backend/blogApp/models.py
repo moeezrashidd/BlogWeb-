@@ -52,7 +52,7 @@ class Profiles(models.Model):
 
 class Posts(models.Model):
     id= models.AutoField(primary_key=True)   
-    author = models.ForeignKey(Users, to_field='username', on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posts')
     title= models.CharField(max_length= 150)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
