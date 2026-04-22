@@ -1,0 +1,246 @@
+Perfect. Your models are:
+
+1. **Users**
+2. **Profiles**
+3. **Posts**
+
+That means you can build a very strong Django project using signals.
+
+---
+
+# 🔥 Best Signal Functions for Your 3 Models
+
+# 1️⃣ USERS Model Signals
+
+Use `post_save`, `user_logged_in`, `user_logged_out`
+
+---
+
+## ✅ When New User Registers
+
+### 1. Auto Create Profile
+
+```python
+User created → create Profile
+```
+
+### 2. Send Welcome Email
+
+```python
+Welcome to our platform
+```
+
+### 3. Give Default Role
+
+```python
+member / normal user
+```
+
+### 4. Create Notification
+
+```python
+Your account has been created
+```
+
+### 5. Give Signup Bonus
+
+```python
+10 free credits
+```
+
+---
+
+## ✅ When User Logs In
+
+### 6. Save Last Login Time
+
+### 7. Save Login IP Address
+
+### 8. Show Welcome Back Notification
+
+### 9. Track Daily Active Users
+
+---
+
+## ✅ When User Deletes Account
+
+### 10. Delete Related Profile + Posts
+
+---
+
+---
+
+# 2️⃣ PROFILE Model Signals
+
+Use `post_save`, `pre_save`, `post_delete`
+
+---
+
+## ✅ When Profile Created
+
+### 11. Generate Unique Username Slug
+
+```python
+john-doe
+```
+
+### 12. Create Referral Code
+
+```python
+JOHN123
+```
+
+### 13. Create Default Avatar
+
+---
+
+## ✅ When Profile Updated
+
+### 14. Resize Uploaded Profile Picture
+
+### 15. Delete Old Profile Image
+
+### 16. Calculate Profile Completion %
+
+```python
+name + bio + image = 80%
+```
+
+### 17. Notify User Profile Updated
+
+---
+
+## ✅ When Profile Deleted
+
+### 18. Remove Media Files
+
+---
+
+---
+
+# 3️⃣ POSTS Model Signals
+
+Use `post_save`, `pre_save`, `post_delete`
+
+---
+
+## ✅ When New Post Created
+
+### 19. Auto Generate Slug
+
+```python
+my-first-post
+```
+
+### 20. Notify Followers
+
+```python
+Ali posted new content
+```
+
+### 21. Increase User Total Posts Count
+
+### 22. Add Activity Log
+
+```python
+Ali created post
+```
+
+### 23. Check Bad Words / Spam
+
+---
+
+## ✅ When Post Updated
+
+### 24. Clear Cache
+
+### 25. Save Edited Timestamp
+
+---
+
+## ✅ When Post Deleted
+
+### 26. Decrease User Post Count
+
+### 27. Delete Post Images
+
+### 28. Save Deleted Post Backup
+
+---
+
+# 🔥 Best Professional Signal Combo for Your Project
+
+Implement these first:
+
+## USERS
+
+✔ Create profile
+✔ Welcome email
+✔ Last login tracking
+
+## PROFILE
+
+✔ Delete old image
+✔ Completion percentage
+
+## POSTS
+
+✔ Auto slug
+✔ Notify followers
+✔ Count posts
+✔ Delete images
+
+---
+
+# Example Total Functions You Can Build
+
+| Model    | Functions |
+| -------- | --------- |
+| Users    | 10        |
+| Profiles | 8         |
+| Posts    | 10        |
+
+✅ **Total = 28 Professional Signal Automations**
+
+---
+
+# Pro-Level Suggestion
+
+Use:
+
+```python id="07hjw0"
+signals/
+   user_signals.py
+   profile_signals.py
+   post_signals.py
+```
+
+Much cleaner than one file.
+
+---
+
+# My Honest Recommendation for You
+
+For social media project:
+
+## MUST HAVE Signals
+
+### Users
+
+* create profile
+
+### Profiles
+
+* delete old image
+
+### Posts
+
+* slug
+* notify followers
+* update post count
+
+These make project look advanced.
+
+---
+
+# If you want, I can also give you **Full Django Signals Code for Users + Profiles + Posts (industry level clean code)** ready to paste in project.
