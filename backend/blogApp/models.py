@@ -26,6 +26,8 @@ class Profiles(models.Model):
     bio = models.CharField(max_length = 150, blank=True)
     disc = models.CharField(max_length=500)
     category = models.CharField(choices = categoryOpts,max_length=50)
+    role = models.CharField(max_length=20, default="normal_user")
+    credits = models.PositiveIntegerField(default=0)
     username = models.OneToOneField(Users, on_delete=models.CASCADE)    
     followers = models.PositiveIntegerField(default= 0)
     following = models.PositiveIntegerField(default= 0)
