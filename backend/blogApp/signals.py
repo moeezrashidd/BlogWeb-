@@ -66,8 +66,36 @@ def sendLogInMsg(instance  , sender ,**Kwargs):
     )
        
                     
+@receiver(pre_save , sender=Profiles)
+def updateProfilePhoto(sender , instance , **kwargs):
+    if not instance.pk:
+        return
+    try:
+        oldProfile = Profiles.objects.get(pk = instance.pk)
+    except Profiles.DoesNotExist:
+        return
+    
+    oldImg = oldProfile.profilePic
+    newImg = instance.profilePic
+    
+    if oldImg and oldImg != newImg:
+        if os.path.isfile(oldImg.path):
+            os.remove(oldImg.path)
+            
+            
+@receiver(post_save , sender=Profiles)
+def notifyUpdatingProfile(sender , instance , **kwargs):
+    send_mail(
+        "profile updated!",
+        "your profile  on MR-blog is updated successfully...",
+        "no-reply@MR-blogTeam.com",
+        [instance.email],
+        fail_silently=True,   
+    )                    
+                                
 @receiver(pre_delete , sender=Users)
-@receiver(pre_delete , sender=Posts)       
+@receiver(pre_delete , sender=Posts)     
+@receiver(pre_delete , sender = Profiles)  
 def deleteFilesOnDelete(sender, instance, **kwargs):
     file_field = getattr(instance, "file", None)
 
@@ -76,6 +104,7 @@ def deleteFilesOnDelete(sender, instance, **kwargs):
             os.remove(file_field.path)
                     
 @receiver(pre_delete , sender=Users)
+@receiver(pre_delete , sender=Profiles)
 @receiver(pre_delete , sender=Posts)
 def creatingAudit(sender, instance ,**kwargs):
     deletionAudits.objects.create(
@@ -89,11 +118,12 @@ def creatingAudit(sender, instance ,**kwargs):
                     
                     
 @receiver(pre_delete , sender=Users)
+@receiver(pre_delete , sender=Profiles)
 @receiver(pre_delete , sender=Posts)
 def msgOfdeletion(sender, instance , ** kwargs):
     send_mail(
         f'Delete {sender.__name__}',
-        "your Account on MR-Blog is deleted successfully",
+        "your deletion operations on MR-Blog is completed successfully",
         "no-reply@MR-blogTeam.com",
         [instance.email],
         fail_silently=True,

@@ -5,7 +5,6 @@ from .models import Users, Profiles, Posts
 from .serializer import UserSerializer, PostsSerializer, ProfilesSerializer
 
 
-# ---------------- USERS ----------------
 @api_view(["GET", "POST"])
 def users_view(request):
     if request.method == "GET":
@@ -21,7 +20,6 @@ def users_view(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ---------------- POSTS ----------------
 @api_view(["GET", "POST"])
 def posts_view(request):
     if request.method == "GET":
@@ -37,7 +35,7 @@ def posts_view(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ---------------- PROFILES ----------------
+
 @api_view(["GET", "POST"])
 def profiles_view(request):
     if request.method == "GET":
