@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.dispatch import receiver
-from django.db.models.signals import pre_save ,post_save , post_delete , pre_delete
+from django.db.models.signals import pre_save ,post_save , post_delete , pre_delete 
+from django.contrib.auth.signals import user_logged_in
 from .models import Users , Profiles , Posts ,deletionAudits
 import os
 from django_currentuser.middleware import get_current_user
@@ -53,6 +54,16 @@ def addFreeBouns(sender , instance , created ,**kwargs):
             
         )
 
+
+@receiver(user_logged_in , sender=Users)
+def sendLogInMsg(instance  , sender ,**Kwargs):
+    send_mail(
+        "Well come Back!",
+        f'{instance.email} is logged in successfully on MR-Blog.....',
+        "no-reply@MR-blogTeam.com",
+        [instance.email],
+        fail_silently=True,
+    )
        
                     
 @receiver(pre_delete , sender=Users)
