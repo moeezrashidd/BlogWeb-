@@ -4,8 +4,8 @@ class Users(models.Model):
     id = models.AutoField(primary_key = True)
     name = models.CharField(max_length= 30)
     username= models.CharField(unique= True, max_length=50)
-    email=models.EmailField(max_length=254)
-    password = models.CharField( max_length=8)
+    email=models.EmailField(max_length=254, unique=True)
+    password = models.CharField( max_length=255)
     followers = models.ManyToManyField(
         "self",
         symmetrical=False,
@@ -43,20 +43,19 @@ class Profiles(models.Model):
     def uploadPhoto(self,*args , **kwargs):
         super.save(*args , **kwargs)
         
-        image = Image.open(self.image.path).convert("RGBA")
-        
-        size = min(image.size)
-        
-        left = (image.width - size) //2
-        top = (image.height-size )//2
-        right = left + size
-        bottom = top +size
-        
-        image.crop((left,top,right,bottom))
-        
-        image.save(self.image.path.replace(".jpg "," .png") , format="PNG")
-        
-        
+        if self.profilePic:
+            image = Image.open(self.profilePic.path).convert("RGBA")
+            
+            size = min(image.size)
+            
+            left = (image.width - size) //2
+            top = (image.height-size )//2
+            right = left + size
+            bottom = top +size
+            
+            image = image.crop((left,top,right,bottom))
+            
+            image.save(self.profilePic.path.replace(".jpg", ".png") , format="PNG")
 
 class Posts(models.Model):
     id= models.AutoField(primary_key=True)   

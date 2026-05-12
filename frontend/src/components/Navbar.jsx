@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { motion } from 'framer-motion'
 import { logo } from '../assets'
 import { FcSearch } from "react-icons/fc";
@@ -6,8 +6,10 @@ import { IoReorderThreeSharp } from "react-icons/io5";
 import { FaLinesLeaning } from "react-icons/fa6";
 import { LuSearchX } from "react-icons/lu";
 import { Link ,useNavigate } from 'react-router-dom';
+import { userContext } from '../Context/userContext';
 
 const Navbar = () => {
+  const { currentUser } = useContext(userContext)
   const [SearchText, setSearchText] = useState("")
   const [toggleMenu, setToggleMenu] = useState(false)
   const [toggleSearch, setToggleSearch] = useState(false)
@@ -71,7 +73,17 @@ const Navbar = () => {
             setToggleSearch(!toggleSearch)
           }}>{toggleSearch ? <LuSearchX /> : <FcSearch />}</span>
 
-          <span className='p-1 sm:px-2 lg:px-5 hover:bg-blue-600 border-2 border-blue-600 hover:text-white text-blue-600  sm:text-base lg:text-xl cursor-pointer rounded  text justify-center items-center font-semibold'><Link to="/signIn">Sign in</Link></span>
+          {currentUser ? (
+            <div className="flex justify-center items-center gap-2 pl-2">
+              <Link to={`/account/${currentUser.id}/${currentUser.username}`}>
+                <div className="w-10 h-10 flex justify-center items-center bg-blue-600 text-white rounded-full font-bold text-lg border-2 border-transparent hover:border-blue-400 cursor-pointer">
+                  {currentUser.name ? currentUser.name[0].toUpperCase() : "U"}
+                </div>
+              </Link>
+            </div>
+          ) : (
+            <span className='p-1 sm:px-2 lg:px-5 hover:bg-blue-600 border-2 border-blue-600 hover:text-white text-blue-600  sm:text-base lg:text-xl cursor-pointer rounded  text justify-center items-center font-semibold'><Link to="/signIn">Sign in</Link></span>
+          )}
         </div>
       </nav>
 

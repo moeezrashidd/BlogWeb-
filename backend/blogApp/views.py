@@ -86,3 +86,21 @@ def unfollow_user(request):
         
     target.followers.remove(actor)
     return Response({"message": "Successfully unfollowed"}, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def login_view(request):
+    email = request.data.get("email")
+    password = request.data.get("password")
+    
+    if not email or not password:
+        return Response({"error": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    try:
+        user = Users.objects.get(email=email)
+        if user.password == password:
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
+    except Users.DoesNotExist:
+        return Response({"error": "User with this email does not exist"}, status=status.HTTP_404_NOT_FOUND)

@@ -1,15 +1,35 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react"; // 👁️ icons
+import axios from "axios";
+import { userContext } from "../Context/userContext";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const { setCurrentUser } = useContext(userContext);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // 🔹 Replace this with your login API call
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/login/", { email, password });
+      
+      // Update global state and local storage
+      const user = response.data;
+      setCurrentUser(user);
+      localStorage.setItem("loggedInUserId", user.id);
+
+      alert("Successfully signed in! Welcome back.");
+      navigate("/");
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(error.response.data.error);
+      } else {
+        alert(error.message);
+      }
+    }
   };
 
   return (

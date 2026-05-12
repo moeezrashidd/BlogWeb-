@@ -35,10 +35,14 @@ const Account = () => {
             <div className="mainContainer flex w-full  gap-2 justify-evenly items-center py-3">
               <div className="picContainer  h-full flex justify-center items-center">
                 <img
-                  src={Account.profilePic}
-                  alt={`${Account.username.name}'s avatar`}
+                  src={
+                    Account.profilePic 
+                      ? (Account.profilePic.startsWith('http') ? Account.profilePic : `http://127.0.0.1:8000${Account.profilePic}`)
+                      : `https://api.dicebear.com/7.x/avataaars/svg?seed=${Account.username?.username || 'user'}`
+                  }
+                  alt={`${Account.username?.name}'s avatar`}
                   className=" w-28 h-28 md:w-40 md:h-40 xl:w-48 xl:h-48 p-1 object-cover 
-                rounded-full border-4 border-blue-500 shadow-2xl"
+                rounded-full border-4 border-blue-500 shadow-2xl bg-white"
                 />
 
                     

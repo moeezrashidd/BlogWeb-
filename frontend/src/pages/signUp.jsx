@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const SignUp = () => {
@@ -12,6 +12,7 @@ const SignUp = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,7 +25,8 @@ const SignUp = () => {
 
       const user = await axios.post("http://127.0.0.1:8000/users/", formData)
 
-      alert("Thanks for join our family!!Please Sign In........")
+      alert("Thanks for joining our family! Please sign in.")
+      navigate("/signIn");
       setFormData({
         name: "",
         username: "",
@@ -34,17 +36,18 @@ const SignUp = () => {
       })
       return 1;
     } catch (error) {
-      let usernameError = error.response.data.username
-      let emailError = error.response.data.email
-      
-      if (usernameError){
-        alert(usernameError)
-      }
-      else if(emailError){
-        alert(emailError)
-      }
-      else{
-        alert(error.message)
+      if (error.response && error.response.data) {
+        let errorMsg = "";
+        const data = error.response.data;
+        if (data.username) errorMsg += `Username: ${data.username[0]}\n`;
+        if (data.email) errorMsg += `Email: ${data.email[0]}\n`;
+        if (data.password) errorMsg += `Password: ${data.password[0]}\n`;
+        if (!errorMsg && typeof data === 'object') {
+            errorMsg = JSON.stringify(data);
+        }
+        alert(errorMsg || "Sign up failed.");
+      } else {
+        alert(error.message);
       }
       setFormData({
         name: "",

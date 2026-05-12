@@ -23,7 +23,8 @@ def welcomeMail(sender,instance , created ,**kwargs):
 @receiver(post_save , sender= Users)
 def auto_Create_Profile(sender , instance , created ,**kwargs):
     if created:
-        Profiles.objects.create(instance = Users)
+        # Create a basic profile with default values to satisfy constraints
+        Profiles.objects.create(username=instance, category="Technology", disc="")
 
 @receiver(post_save , sender= Users)
 def accountCreatMail(sender , instance , created ,**kwargs):
@@ -40,7 +41,7 @@ def accountCreatMail(sender , instance , created ,**kwargs):
 @receiver(post_save , sender=Users)
 def addFreeBouns(sender , instance , created ,**kwargs):
     if created:
-        profile, created_profile = Profiles.objects.get_or_create(user = instance)
+        profile, created_profile = Profiles.objects.get_or_create(username=instance, defaults={"category": "Technology", "disc": ""})
         
         profile.credits = 10
         profile.save(update_fields=["credits"])
@@ -85,13 +86,15 @@ def updateProfilePhoto(sender , instance , **kwargs):
             
 @receiver(post_save , sender=Profiles)
 def notifyUpdatingProfile(sender , instance , **kwargs):
-    send_mail(
-        "profile updated!",
-        "your profile  on MR-blog is updated successfully...",
-        "no-reply@MR-blogTeam.com",
-        [instance.email],
-        fail_silently=True,   
-    )                    
+    email = instance.username.email if hasattr(instance, 'username') and instance.username else None
+    if email:
+        send_mail(
+            "profile updated!",
+            "your profile  on MR-blog is updated successfully...",
+            "no-reply@MR-blogTeam.com",
+            [email],
+            fail_silently=True,   
+        )                    
     
 @receiver(post_save ,sender=Posts)
 def incPostCount(sender ,instance ,created , **kwargs):
@@ -140,13 +143,20 @@ def creatingAudit(sender, instance ,**kwargs):
 @receiver(pre_delete , sender=Profiles)
 @receiver(pre_delete , sender=Posts)
 def msgOfdeletion(sender, instance , ** kwargs):
-    send_mail(
-        f'Delete {sender.__name__}',
-        "your deletion operations on MR-Blog is completed successfully",
-        "no-reply@MR-blogTeam.com",
-        [instance.email],
-        fail_silently=True,
-    )
+    email = None
+    if sender == Users:
+        email = instance.email
+    elif hasattr(instance, 'username') and instance.username:
+        email = instance.username.email
+        
+    if email:
+        send_mail(
+            f'Delete {sender.__name__}',
+            "your deletion operations on MR-Blog is completed successfully",
+            "no-reply@MR-blogTeam.com",
+            [email],
+            fail_silently=True,
+        )
     
 @receiver(m2m_changed, sender=Users.followers.through)
 def update_follow_counts(sender, instance, action, pk_set, **kwargs):

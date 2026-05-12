@@ -1,30 +1,28 @@
 import { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { userContext } from '../Context/userContext'
-
-
+import { profileContext } from '../Context/profileContext'
 
 const Writers = ({ category, id, searchText }) => {
-  const { userData, Loading, error } = useContext(userContext)
+  const { Profiles, Loading, error } = useContext(profileContext)
 
   const [FilterWriters, setFilterWriters] = useState([])
   const [Items, setItems] = useState(8)
 
   useEffect(() => {
-    let filtered = [...userData];
-    console.log(filtered)
+    let filtered = [...Profiles];
     // Apply category filter
     if (category) {
-      filtered = filtered.filter((writer) => writer.category === category && writer.id !== parseInt(id));
+      filtered = filtered.filter((writer) => writer.category === category && writer.username?.id !== parseInt(id));
     }
      if (searchText) {
       filtered = filtered.filter((writer) =>
-        writer.name.toLowerCase().includes(searchText.toLowerCase())
+        writer.username?.name.toLowerCase().includes(searchText.toLowerCase())
       )
     }
     
     setFilterWriters(filtered);
-  }, [category, id, searchText,userData])
+  }, [category, id, searchText, Profiles])
 
 
   useEffect(() => {
@@ -49,8 +47,6 @@ const Writers = ({ category, id, searchText }) => {
       <h1 className='text-4xl sm:text-5xl font-extrabold text-gray-900 text-center mb-4 '>{category || searchText ? "Related" : "Top"} <span className='text-blue-600'>Writers</span></h1>
 
       <div className="container flex flex-wrap justify-center gap-1 sm:gap-2 3xl:gap-4 mt-42 ">
-
-
 
         {FilterWriters.length >= 1 ? FilterWriters.slice(0, Items).map((writer, index) => (
           <WritersCard writer={writer} key={index} />
@@ -87,7 +83,7 @@ export const WritersCard = ({ writer }) => {
             },
             body: JSON.stringify({
                 actor_id: actor_id,
-                target_id: writer.id
+                target_id: writer.username?.id
             }),
         });
         if (response.ok) {
@@ -101,7 +97,7 @@ export const WritersCard = ({ writer }) => {
   }
 
   return (
-    <Link to={`/account/${writer.id}/${writer.username}`}>
+    <Link to={`/account/${writer.username?.id}/${writer.username?.username}`}>
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
@@ -112,18 +108,22 @@ export const WritersCard = ({ writer }) => {
       >
 
         <img
-          src={writer.avatar}
-          alt={`${writer.name}'s avatar`}
+          src={
+            writer.profilePic 
+              ? (writer.profilePic.startsWith('http') ? writer.profilePic : `http://127.0.0.1:8000${writer.profilePic}`)
+              : `https://api.dicebear.com/7.x/avataaars/svg?seed=${writer.username?.username || 'user'}`
+          }
+          alt={`${writer.username?.name}'s avatar`}
           className="w-20 h-20 2xl:w-28 p-1 2xl:h-28 object-cover 
-        rounded-full border-4 border-blue-500 shadow-2xl"
+        rounded-full border-4 border-blue-500 shadow-2xl bg-white"
         />
 
 
         <h3 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
-          {writer.name}
+          {writer.username?.name}
         </h3>
 
-        <span className="text-sm text-blue-500 font-medium -mt-4">@{writer.username}</span>
+        <span className="text-sm text-blue-500 font-medium -mt-4">@{writer.username?.username}</span>
 
         <p className="text-center text-gray-700 text-sm md:text-base line-clamp-3">
           {writer.bio}
@@ -141,6 +141,5 @@ export const WritersCard = ({ writer }) => {
     </Link>
   );
 };
-
 
 export default Writers

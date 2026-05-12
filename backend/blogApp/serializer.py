@@ -10,9 +10,10 @@ class UserSerializer(serializers.ModelSerializer):
 class PostsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Posts
-        fields=['id' , 'author' , 'title', 'content', 'created_at','updated_at']
+        fields=['id' , 'username' , 'title', 'content', 'created_at','updated_at']
 
 class ProfilesSerializer(serializers.ModelSerializer):
     class Meta:
         model=Profiles
-        fields=['protilePic', 'bio', 'disc','category','username' , 'followers' , 'following' , 'likes', 'posts']        
+        fields=['profilePic', 'bio', 'disc','category','username' , 'followers' , 'following' , 'likes', 'posts']
+        depth = 1
