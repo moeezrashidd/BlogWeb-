@@ -49,3 +49,40 @@ def profiles_view(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+def follow_user(request):
+    actor_id = request.data.get("actor_id")
+    target_id = request.data.get("target_id")
+    
+    if not actor_id or not target_id:
+        return Response({"error": "actor_id and target_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    if actor_id == target_id:
+        return Response({"error": "You cannot follow yourself"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    try:
+        actor = Users.objects.get(id=actor_id)
+        target = Users.objects.get(id=target_id)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    target.followers.add(actor)
+    return Response({"message": "Successfully followed"}, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def unfollow_user(request):
+    actor_id = request.data.get("actor_id")
+    target_id = request.data.get("target_id")
+    
+    if not actor_id or not target_id:
+        return Response({"error": "actor_id and target_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    try:
+        actor = Users.objects.get(id=actor_id)
+        target = Users.objects.get(id=target_id)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    target.followers.remove(actor)
+    return Response({"message": "Successfully unfollowed"}, status=status.HTTP_200_OK)

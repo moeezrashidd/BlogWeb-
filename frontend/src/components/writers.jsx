@@ -66,6 +66,39 @@ import { motion } from "framer-motion";
 
 
 export const WritersCard = ({ writer }) => {
+  const { currentUser } = useContext(userContext);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const handleFollow = async (e) => {
+    e.preventDefault();
+    if (!currentUser) {
+        alert("Please log in to follow other users!");
+        return;
+    }
+    
+    const actor_id = currentUser.id;
+    const endpoint = isFollowing ? 'http://127.0.0.1:8000/unfollow/' : 'http://127.0.0.1:8000/follow/';
+    
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                actor_id: actor_id,
+                target_id: writer.id
+            }),
+        });
+        if (response.ok) {
+            setIsFollowing(!isFollowing);
+        } else {
+            console.error("Failed to toggle follow");
+        }
+    } catch (err) {
+        console.error("Error toggling follow", err);
+    }
+  }
 
   return (
     <Link to={`/account/${writer.id}/${writer.username}`}>
@@ -97,11 +130,12 @@ export const WritersCard = ({ writer }) => {
         </p>
 
         <button
-          className="mt-3 px-6 py-2 bg-blue-600 hover:bg-blue-700 
+          onClick={handleFollow}
+          className={`mt-3 px-6 py-2 ${isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} 
         text-white text-sm md:text-base font-semibold 
-        rounded-xl shadow-md transition-all duration-300"
+        rounded-xl shadow-md transition-all duration-300`}
         >
-          Follow
+          {isFollowing ? 'Unfollow' : 'Follow'}
         </button>
       </motion.div>
     </Link>

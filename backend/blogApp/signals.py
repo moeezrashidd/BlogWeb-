@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 from django.dispatch import receiver
-from django.db.models.signals import pre_save ,post_save , post_delete , pre_delete 
+from django.db.models.signals import pre_save ,post_save , post_delete , pre_delete, m2m_changed
 from django.contrib.auth.signals import user_logged_in
 from .models import Users , Profiles , Posts ,deletionAudits
 import os
@@ -40,7 +40,7 @@ def accountCreatMail(sender , instance , created ,**kwargs):
 @receiver(post_save , sender=Users)
 def addFreeBouns(sender , instance , created ,**kwargs):
     if created:
-        profile = Profiles.objects.get_or_create(user = instance)
+        profile, created_profile = Profiles.objects.get_or_create(user = instance)
         
         profile.credits = 10
         profile.save(update_fields=["credits"])
@@ -92,6 +92,25 @@ def notifyUpdatingProfile(sender , instance , **kwargs):
         [instance.email],
         fail_silently=True,   
     )                    
+    
+@receiver(post_save ,sender=Posts)
+def incPostCount(sender ,instance ,created , **kwargs):
+    if created:
+        profile = instance.username.profiles
+        profile.posts += 1
+        
+        profile.save(update_fields=["posts"])
+        
+        author = instance.username
+        followers = author.followers.all()
+        for follower in followers:
+            send_mail(
+                'New Post from someone you follow!',
+                f'{author.name} just published a new post: "{instance.title}". Check it out!',
+                'no-reply@MR-blogTeam.com',
+                [follower.email],
+                fail_silently=True
+            )
                                 
 @receiver(pre_delete , sender=Users)
 @receiver(pre_delete , sender=Posts)     
@@ -129,3 +148,31 @@ def msgOfdeletion(sender, instance , ** kwargs):
         fail_silently=True,
     )
     
+@receiver(m2m_changed, sender=Users.followers.through)
+def update_follow_counts(sender, instance, action, pk_set, **kwargs):
+    if action in ["post_add", "post_remove", "post_clear"]:
+        try:
+            target_profile = instance.profiles
+            target_profile.followers = instance.followers.count()
+            target_profile.save(update_fields=['followers'])
+        except Profiles.DoesNotExist:
+            pass
+            
+        if pk_set:
+            for actor_id in pk_set:
+                try:
+                    actor = Users.objects.get(id=actor_id)
+                    actor_profile = actor.profiles
+                    actor_profile.following = actor.following.count()
+                    actor_profile.save(update_fields=['following'])
+                    
+                    if action == "post_add":
+                        send_mail(
+                            'New Follower!',
+                            f'Hi {instance.name}, {actor.name} just started following you!',
+                            'no-reply@MR-blogTeam.com',
+                            [instance.email],
+                            fail_silently=True
+                        )
+                except (Users.DoesNotExist, Profiles.DoesNotExist):
+                    pass

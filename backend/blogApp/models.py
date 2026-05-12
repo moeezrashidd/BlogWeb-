@@ -6,6 +6,12 @@ class Users(models.Model):
     username= models.CharField(unique= True, max_length=50)
     email=models.EmailField(max_length=254)
     password = models.CharField( max_length=8)
+    followers = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        related_name="following",
+        blank=True
+    )
 
 class Profiles(models.Model):  
     categoryOpts =[
@@ -54,7 +60,7 @@ class Profiles(models.Model):
 
 class Posts(models.Model):
     id= models.AutoField(primary_key=True)   
-    author = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posts')
+    username = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posts')
     title= models.CharField(max_length= 150)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

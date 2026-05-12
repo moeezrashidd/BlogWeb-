@@ -8,6 +8,7 @@ export const UserProvider = ({ children }) => {
     const [userData, setUserData] = useState([])
     const [Loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [currentUser, setCurrentUser] = useState(null)
 
     useEffect(() => {
         async function getdata() {
@@ -15,6 +16,13 @@ export const UserProvider = ({ children }) => {
                 const response = await axios.get("http://127.0.0.1:8000/users/")
                 console.log(response)
                 setUserData(response.data)
+                
+                // Initialize currentUser from localStorage if present
+                const storedUserId = localStorage.getItem("loggedInUserId")
+                if (storedUserId) {
+                    const activeUser = response.data.find(u => u.id === parseInt(storedUserId))
+                    if (activeUser) setCurrentUser(activeUser)
+                }
 
             } catch (error) {
                 setError(error);
@@ -31,7 +39,7 @@ export const UserProvider = ({ children }) => {
     }, [])
 
     return (
-        <userContext.Provider value={{ userData, Loading, error }}>
+        <userContext.Provider value={{ userData, Loading, error, currentUser, setCurrentUser }}>
             {children}
         </userContext.Provider>
     )

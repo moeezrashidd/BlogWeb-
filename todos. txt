@@ -1,26 +1,11 @@
 
 ## ✅ When New Post Created
 
-### 19. Auto Generate Slug
 
 
 ### 20. Notify Followers
 
 
-
-### 21. Increase User Total Posts Count
-
-### 22. Add Activity Log
-
-
-### 23. Check Bad Words / Spam
-
-
-## ✅ When Post Updated
-
-### 24. Clear Cache
-
-### 25. Save Edited Timestamp
 
 ## ✅ When Post Deleted
 
@@ -30,4 +15,4 @@
 
 ### 28. Save Deleted Post Backup
 
----
+
