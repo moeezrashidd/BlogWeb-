@@ -22,6 +22,7 @@ export const ProfileProvider = ({children})=>{
         getData()
     }, [])
 
+console.log(Profiles)
 
     return (
         <profileContext.Provider value={{Profiles,Loading,Error}}>

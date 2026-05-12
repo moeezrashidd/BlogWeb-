@@ -62,6 +62,7 @@ class Posts(models.Model):
     username = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posts')
     title= models.CharField(max_length= 150)
     content = models.TextField()
+    likes = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
    

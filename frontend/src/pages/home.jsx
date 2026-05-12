@@ -41,9 +41,13 @@ const Home = () => {
 
             <div className="parent flex flex-wrap justify-center gap-1 sm:gap-2 3xl:gap-4 mt-4">
 
-                {postData.filter((post) => post.category == "latest").slice(0, Items).map((item, index) => (
+                {postData
+                  .slice()
+                  .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+                  .slice(0, Items)
+                  .map((item, index) => (
                     <PostCard key={index} item={item} />
-                ))}
+                  ))}
             </div>
 
 

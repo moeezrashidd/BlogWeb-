@@ -1,65 +1,67 @@
-import { useState, useEffect, useContext } from 'react'
-import { Link } from 'react-router-dom'
-import { userContext } from '../Context/userContext'
-import { profileContext } from '../Context/profileContext'
+import { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+import { userContext } from '../Context/userContext';
+import { profileContext } from '../Context/profileContext';
 
 const Writers = ({ category, id, searchText }) => {
-  const { Profiles, Loading, error } = useContext(profileContext)
-
-  const [FilterWriters, setFilterWriters] = useState([])
-  const [Items, setItems] = useState(8)
+  const { Profiles, Loading } = useContext(profileContext);
+console.log(Profiles)
+  const [FilterWriters, setFilterWriters] = useState([]);
+  const [Items, setItems] = useState(8);
 
   useEffect(() => {
-    let filtered = [...Profiles];
-    // Apply category filter
-    if (category) {
-      filtered = filtered.filter((writer) => writer.category === category && writer.username?.id !== parseInt(id));
-    }
-     if (searchText) {
-      filtered = filtered.filter((writer) =>
-        writer.username?.name.toLowerCase().includes(searchText.toLowerCase())
-      )
-    }
-    
-    setFilterWriters(filtered);
-  }, [category, id, searchText, Profiles])
+    const allProfiles = Array.isArray(Profiles) ? Profiles : [];
+    let filtered = [...allProfiles];
 
+    if (category) {
+      filtered = filtered.filter(
+        (writer) => writer.category === category && writer.username?.id !== Number(id)
+      );
+    }
+
+    if (searchText) {
+      filtered = filtered.filter((writer) =>
+        (writer.username?.name || '').toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    setFilterWriters(filtered);
+  }, [category, id, searchText, Profiles]);
 
   useEffect(() => {
     const changeItemCount = () => {
-      if (window.innerWidth < 840) {
-        setItems(4);
-      } else {
-        setItems(8);
-      }
-    }
+      if (window.innerWidth < 840) setItems(4);
+      else setItems(8);
+    };
 
-    changeItemCount()
-    window.addEventListener("resize", changeItemCount)
+    changeItemCount();
+    window.addEventListener('resize', changeItemCount);
 
-    return () => window.removeEventListener("resize", changeItemCount)
+    return () => window.removeEventListener('resize', changeItemCount);
+  }, []);
 
-
-  }, [])
-  
   return (
-    <div className="userData flex  justify-center items-center flex-col  gap-2 mt-6">
-      <h1 className='text-4xl sm:text-5xl font-extrabold text-gray-900 text-center mb-4 '>{category || searchText ? "Related" : "Top"} <span className='text-blue-600'>Writers</span></h1>
+    <div className="userData flex justify-center items-center flex-col gap-2 mt-6">
+      <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 text-center mb-4">
+        {category || searchText ? 'Related' : 'Top'} <span className="text-blue-600">Writers</span>
+      </h1>
 
-      <div className="container flex flex-wrap justify-center gap-1 sm:gap-2 3xl:gap-4 mt-42 ">
-
-        {FilterWriters.length >= 1 ? FilterWriters.slice(0, Items).map((writer, index) => (
-          <WritersCard writer={writer} key={index} />
-        )) : <span className='font-semibold text-red-700'>No Writer Available to Show</span>}
-
+      <div className="container flex flex-wrap justify-center gap-1 sm:gap-2 3xl:gap-4 mt-10">
+        {Loading ? (
+          <span className="font-semibold text-gray-500">Loading...</span>
+        ) : FilterWriters.length >= 1 ? (
+          FilterWriters.slice(0, Items).map((writer, index) => (
+            <WritersCard writer={writer} key={index} />
+          ))
+        ) : (
+          <span className="font-semibold text-red-700">No Writer Available to Show</span>
+        )}
       </div>
     </div>
-  )
-}
-
-
-import { motion } from "framer-motion";
-
+  );
+};
 
 export const WritersCard = ({ writer }) => {
   const { currentUser } = useContext(userContext);
@@ -68,62 +70,58 @@ export const WritersCard = ({ writer }) => {
   const handleFollow = async (e) => {
     e.preventDefault();
     if (!currentUser) {
-        alert("Please log in to follow other users!");
-        return;
+      alert('Please log in to follow other users!');
+      return;
     }
-    
+
     const actor_id = currentUser.id;
-    const endpoint = isFollowing ? 'http://127.0.0.1:8000/unfollow/' : 'http://127.0.0.1:8000/follow/';
-    
+    const endpoint = isFollowing
+      ? 'http://127.0.0.1:8000/unfollow/'
+      : 'http://127.0.0.1:8000/follow/';
+
     try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                actor_id: actor_id,
-                target_id: writer.username?.id
-            }),
-        });
-        if (response.ok) {
-            setIsFollowing(!isFollowing);
-        } else {
-            console.error("Failed to toggle follow");
-        }
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          actor_id,
+          target_id: writer.username?.id,
+        }),
+      });
+
+      if (response.ok) setIsFollowing((prev) => !prev);
+      else console.error('Failed to toggle follow');
     } catch (err) {
-        console.error("Error toggling follow", err);
+      console.error('Error toggling follow', err);
     }
-  }
+  };
 
   return (
     <Link to={`/account/${writer.username?.id}/${writer.username?.username}`}>
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
-        className="writer flex flex-col items-center w-[96vw] sm:w-[265px] md:w-[300px]
-      bg-white border border-gray-200  rounded-2xl 
-      p-5 gap-3 hover:border-blue-500 shadow-2xl 
-      transition-all duration-300 cursor-pointer"
+        className="writer flex flex-col items-center w-[96vw] sm:w-[265px] md:w-[300px] bg-white border border-gray-200 rounded-2xl p-5 gap-3 hover:border-blue-500 shadow-2xl transition-all duration-300 cursor-pointer"
       >
-
         <img
           src={
-            writer.profilePic 
-              ? (writer.profilePic.startsWith('http') ? writer.profilePic : `http://127.0.0.1:8000${writer.profilePic}`)
+            writer.profilePic
+              ? writer.profilePic.startsWith('http')
+                ? writer.profilePic
+                : `http://127.0.0.1:8000${writer.profilePic}`
               : `https://api.dicebear.com/7.x/avataaars/svg?seed=${writer.username?.username || 'user'}`
           }
           alt={`${writer.username?.name}'s avatar`}
-          className="w-20 h-20 2xl:w-28 p-1 2xl:h-28 object-cover 
-        rounded-full border-4 border-blue-500 shadow-2xl bg-white"
+          className="w-20 h-20 2xl:w-28 p-1 2xl:h-28 object-cover rounded-full border-4 border-blue-500 shadow-2xl bg-white"
         />
-
 
         <h3 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
           {writer.username?.name}
         </h3>
 
-        <span className="text-sm text-blue-500 font-medium -mt-4">@{writer.username?.username}</span>
+        <span className="text-sm text-blue-500 font-medium -mt-4">
+          @{writer.username?.username}
+        </span>
 
         <p className="text-center text-gray-700 text-sm md:text-base line-clamp-3">
           {writer.bio}
@@ -131,9 +129,9 @@ export const WritersCard = ({ writer }) => {
 
         <button
           onClick={handleFollow}
-          className={`mt-3 px-6 py-2 ${isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} 
-        text-white text-sm md:text-base font-semibold 
-        rounded-xl shadow-md transition-all duration-300`}
+          className={`mt-3 px-6 py-2 ${
+            isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'
+          } text-white text-sm md:text-base font-semibold rounded-xl shadow-md transition-all duration-300`}
         >
           {isFollowing ? 'Unfollow' : 'Follow'}
         </button>
@@ -142,4 +140,4 @@ export const WritersCard = ({ writer }) => {
   );
 };
 
-export default Writers
+export default Writers;
