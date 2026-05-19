@@ -142,3 +142,24 @@ def get_user_following(request, user_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(["PUT"])
+def update_profile(request, user_id):
+    try:
+        user = Users.objects.get(id=user_id)
+        profile = Profiles.objects.get(username=user)
+    except (Users.DoesNotExist, Profiles.DoesNotExist):
+        return Response({"error": "User or Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Update user name if provided
+    name = request.data.get('name')
+    if name:
+        user.name = name
+        user.save()
+
+    # The request might be multipart/form-data. The serializer handles it.
+    serializer = ProfilesSerializer(profile, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

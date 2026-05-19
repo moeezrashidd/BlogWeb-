@@ -75,7 +75,9 @@ export const WritersCard = ({ writer }) => {
 
 
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isTogglingFollow, setIsTogglingFollow] = useState(false);
   const navigate = useNavigate();
+
 
   // Set initial follow state once (so after refresh it shows correct value),
   // but DO NOT reset it on every re-render/click.
@@ -110,46 +112,47 @@ export const WritersCard = ({ writer }) => {
       alert('Please log in to follow other users!');
       return;
     }
+    if (isTogglingFollow) return;
 
     const actor_id = currentUser.id;
+    const targetId = writer.username?.id;
+    if (!targetId) return;
+
+    const previous = isFollowing;
     const endpoint = isFollowing
       ? 'http://127.0.0.1:8000/unfollow/'
       : 'http://127.0.0.1:8000/follow/';
 
-        // optimistic UI
-    const previous = isFollowing;
-    const targetId = writer.username?.id;
-    if (typeof optimisticFollowUpdate === 'function' && currentUser?.id && targetId) {
-      optimisticFollowUpdate({ actorId: currentUser.id, targetId, willFollow: !previous });
-    }
-    setIsFollowing(!previous);
+    setIsTogglingFollow(true);
 
-
-    fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        actor_id,
-        target_id: writer.username?.id,
-      }),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          const text = await response.text().catch(() => '');
-          console.error('Failed to toggle follow', { status: response.status, body: text });
-          setIsFollowing(previous);
-          return;
-        }
-
-        // Ensure follower/following counts update in related lists too
-        if (typeof refreshProfiles === 'function') {
-          await refreshProfiles();
-        }
-      })
-      .catch((err) => {
-        console.error('Error toggling follow', err);
-        setIsFollowing(previous);
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          actor_id,
+          target_id: targetId,
+        }),
       });
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        console.error('Failed to toggle follow', { status: response.status, body: text });
+        return;
+      }
+
+      // Only update UI after success
+      setIsFollowing(!previous);
+
+      // Ensure follower/following counts update in related lists too
+      if (typeof refreshProfiles === 'function') {
+        await refreshProfiles();
+      }
+    } catch (err) {
+      console.error('Error toggling follow', err);
+    } finally {
+      setIsTogglingFollow(false);
+    }
   };
 
   return (
@@ -187,11 +190,12 @@ export const WritersCard = ({ writer }) => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleFollow}
+          disabled={isTogglingFollow}
           className={`mt-3 px-6 py-2 ${
             isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'
-          } text-white text-sm md:text-base font-semibold rounded-xl shadow-md transition-all duration-300`}
+          } ${isTogglingFollow ? 'opacity-70 cursor-not-allowed' : ''} text-white text-sm md:text-base font-semibold rounded-xl shadow-md transition-all duration-300`}
         >
-          {isFollowing ? 'Unfollow' : 'Follow'}
+          {isTogglingFollow ? 'Loading...' : isFollowing ? 'Unfollow' : 'Follow'}
         </motion.button>
       </motion.div>
   );

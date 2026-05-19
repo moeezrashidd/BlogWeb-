@@ -87,12 +87,7 @@ export const footerLinks = [
     href: "https://linkedin.com/", 
     icon: FaLinkedin,
   },
-  {
-    id: 6,
-    name: "Twitter",
-    href: "https://twitter.com/", 
-    icon: FaTwitter,
-  },
+  
   {
     id: 7,
     name: "Fiverr",
@@ -105,10 +100,5 @@ export const footerLinks = [
     href: "https://twitter.com/", 
     icon: SiUpwork,
   },
-  {
-    id: 9,
-    name: "TikTok",
-    href: "https://www.tiktok.com/@moeezzrashid",
-    icon: SiTiktok,
-  },
+  
 ];
