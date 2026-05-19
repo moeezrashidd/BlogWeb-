@@ -200,19 +200,20 @@ const Account = () => {
                 <p className="text-start md:flex hidden text-gray-700 text-sm md:text-base line-clamp-3">{account.bio}</p>
 
                 {account.disc && (
-                  <div className="w-full md:flex hidden flex-col items-start mt-2">
+                  <div className="w-full md:flex hidden flex-col items-start mt-2 max-w-[520px]">
                     <button
                       onClick={() => setShowAbout(!showAbout)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors focus:outline-none"
+className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors focus:outline-none w-full text-left whitespace-nowrap"
                     >
                       {showAbout ? 'Hide About' : 'Read About Me'}
                     </button>
+
                     {showAbout && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="text-gray-600 text-sm mt-2 text-start bg-blue-50 p-3 rounded-lg border border-blue-100 w-full"
+                        className="text-gray-600 text-sm mt-2 text-start bg-blue-50 p-3 rounded-lg border border-blue-100 w-full max-w-[100%] overflow-hidden"
                       >
                         {account.disc}
                       </motion.div>
@@ -274,7 +275,7 @@ const Account = () => {
               <p className="text-center text-gray-700 text-sm md:text-base line-clamp-3">{account.bio}</p>
 
               {account.disc && (
-                <div className="w-full md:hidden flex flex-col items-center mt-2">
+                <div className=" md:hidden flex flex-col items-center mt-2">
                   <button
                     onClick={() => setShowAbout(!showAbout)}
                     className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors focus:outline-none"
@@ -286,7 +287,7 @@ const Account = () => {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="text-gray-600 text-sm mt-2 text-center bg-blue-50 p-3 rounded-lg border border-blue-100 w-full"
+                      className="text-gray-600 text-sm mt-2 text-center bg-blue-50 p-3 rounded-lg border border-blue-100 w-full max-w-[100%] overflow-hidden"
                     >
                       {account.disc}
                     </motion.div>

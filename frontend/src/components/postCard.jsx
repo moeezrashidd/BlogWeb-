@@ -9,6 +9,8 @@ const PostCard = ({ item }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [localLikesCount, setLocalLikesCount] = useState(item.likes || 0);
+  const abortRef = React.useRef(null);
+
   const actorId = currentUser?.id;
   const postId = item?.id;
 
@@ -17,20 +19,30 @@ const PostCard = ({ item }) => {
   }, [actorId, postId]);
 
   useEffect(() => {
+    if (!isReady) return;
+
+    // Cancel previous request if user switches quickly between posts.
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     const fetchLikeState = async () => {
-      if (!isReady) return;
       try {
         const res = await fetch(
-          `http://127.0.0.1:8000/check_post_like/?actor_id=${actorId}&post_id=${postId}`
+          `http://127.0.0.1:8000/check_post_like/?actor_id=${actorId}&post_id=${postId}`,
+          { signal: controller.signal }
         );
         if (!res.ok) return;
         const data = await res.json();
         setIsLiked(!!data.is_liked);
-      } catch {
-        // ignore
+      } catch (err) {
+        if (err?.name !== 'AbortError') console.error(err);
       }
     };
+
     fetchLikeState();
+
+    return () => controller.abort();
   }, [isReady, actorId, postId]);
 
   const handleLikeToggle = async (e) => {
@@ -44,6 +56,10 @@ const PostCard = ({ item }) => {
     if (!postId) return;
     if (isLiking) return;
 
+    // Optimistic UI: toggle immediately.
+    setIsLiked((prev) => !prev);
+    setLocalLikesCount((prev) => (isLiked ? Math.max(0, prev - 1) : prev + 1));
+
     setIsLiking(true);
     try {
       if (isLiked) {
@@ -52,19 +68,21 @@ const PostCard = ({ item }) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ actor_id: currentUser.id, post_id: postId }),
         });
-        setIsLiked(false);
-        setLocalLikesCount((prev) => Math.max(0, prev - 1));
+        // revert to server-confirmed state on error below.
       } else {
         await fetch("http://127.0.0.1:8000/like_post/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ actor_id: currentUser.id, post_id: postId }),
         });
-        setIsLiked(true);
-        setLocalLikesCount((prev) => prev + 1);
+        // optimistic state already updated; keep current UI until next refetch.
       }
     } catch (err) {
       console.error(err);
+
+      // If server request fails, revert optimistic UI.
+      setIsLiked((prev) => !prev);
+      setLocalLikesCount((prev) => (isLiked ? prev + 1 : Math.max(0, prev - 1)));
     } finally {
       setIsLiking(false);
     }
