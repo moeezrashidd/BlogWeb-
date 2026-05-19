@@ -35,7 +35,8 @@ const Posts = ({ username, id, propCategory, searchText }) => {
     }
 
     if (id) {
-      filtered = filtered.filter(post => post.id !== id);
+      const currentId = Number(id);
+      filtered = filtered.filter((post) => Number(post.id) !== currentId);
     }
   
 

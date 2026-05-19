@@ -57,6 +57,15 @@ class Profiles(models.Model):
             
             image.save(self.profilePic.path.replace(".jpg", ".png") , format="PNG")
 
+class PostUserLike(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='post_likes')
+    post = models.ForeignKey('Posts', on_delete=models.CASCADE, related_name='user_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'post')
+
+
 class Posts(models.Model):
     id= models.AutoField(primary_key=True)   
     username = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posts')
@@ -68,7 +77,6 @@ class Posts(models.Model):
    
    
 class deletionAudits(models.Model):
-    model_name = models.CharField(max_length=200)
     obj_id= models.IntegerField()
     DeletedBy = models.CharField(max_length=200)
     data = models.JSONField()

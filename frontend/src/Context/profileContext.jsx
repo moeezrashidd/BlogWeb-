@@ -19,10 +19,8 @@ export const ProfileProvider = ({ children }) => {
         }
     }
 
-    // Optimistically update follower/following counts in Profiles.
-    // Returns a snapshot you can roll back to.
     const optimisticFollowUpdate = ({ actorId, targetId, willFollow }) => {
-        // actorId: currentUser.id, targetId: writer.username.id that is being followed/unfollowed
+       
         const prev = Profiles
 
         const actorIdNum = Number(actorId)
@@ -34,9 +32,9 @@ export const ProfileProvider = ({ children }) => {
                 return { ...p }
             })
 
-            // following count of the actor
+    
             const actorProfile = next.find((p) => Number(p?.username?.id) === actorIdNum)
-            // followers count of the target
+            
             const targetProfile = next.find((p) => Number(p?.username?.id) === targetIdNum)
 
             if (actorProfile && typeof actorProfile.following === 'number') {
@@ -59,7 +57,7 @@ export const ProfileProvider = ({ children }) => {
             await refreshProfiles()
             setLoading(false)
         })()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        
     }, [])
 
     return (

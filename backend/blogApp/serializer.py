@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PostsSerializer(serializers.ModelSerializer):
-    # Frontend expects: post.author.username
+   
     author = UserSerializer(source='username', read_only=True)
 
     class Meta:
@@ -17,7 +17,7 @@ class PostsSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'author',
-            'username',  # keep for backward compatibility if needed
+            'username',  
             'title',
             'content',
             'created_at',

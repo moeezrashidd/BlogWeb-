@@ -1,8 +1,75 @@
-import React from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaRegHeart ,FaRegSave} from "react-icons/fa";
+import { FaHeart, FaRegHeart, FaRegSave } from "react-icons/fa";
+import { userContext } from "../Context/userContext";
+
 const PostCard = ({ item }) => {
+  const { currentUser } = useContext(userContext);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [localLikesCount, setLocalLikesCount] = useState(item.likes || 0);
+  const actorId = currentUser?.id;
+  const postId = item?.id;
+
+  const isReady = useMemo(() => {
+    return actorId && postId;
+  }, [actorId, postId]);
+
+  useEffect(() => {
+    const fetchLikeState = async () => {
+      if (!isReady) return;
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:8000/check_post_like/?actor_id=${actorId}&post_id=${postId}`
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        setIsLiked(!!data.is_liked);
+      } catch {
+        // ignore
+      }
+    };
+    fetchLikeState();
+  }, [isReady, actorId, postId]);
+
+  const handleLikeToggle = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!currentUser) {
+      alert("Please log in to like posts!");
+      return;
+    }
+    if (!postId) return;
+    if (isLiking) return;
+
+    setIsLiking(true);
+    try {
+      if (isLiked) {
+        await fetch("http://127.0.0.1:8000/unlike_post/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actor_id: currentUser.id, post_id: postId }),
+        });
+        setIsLiked(false);
+        setLocalLikesCount((prev) => Math.max(0, prev - 1));
+      } else {
+        await fetch("http://127.0.0.1:8000/like_post/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actor_id: currentUser.id, post_id: postId }),
+        });
+        setIsLiked(true);
+        setLocalLikesCount((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
@@ -48,9 +115,20 @@ const PostCard = ({ item }) => {
 
 
       <div className="absolute right-4 top-3 z-50  flex flex-col justify-center items-center gap-3">
-        <span className="text-2xl hover:text-red-600 cursor-pointer"><FaRegHeart /></span>
+        <span
+          role="button"
+          aria-label={isLiked ? "Unlike" : "Like"}
+          onClick={handleLikeToggle}
+          className="flex flex-col items-center justify-center cursor-pointer"
+        >
+          <span className="text-2xl">
+            {isLiked ? <FaHeart className="text-red-600" /> : <FaRegHeart />}
+          </span>
+          <span className="text-xs font-semibold text-gray-600 mt-1">{localLikesCount}</span>
+        </span>
         <span className="text-2xl hover:text-blue-600 cursor-pointer "><FaRegSave /></span>
       </div>
+
     </motion.div>
   );
 };

@@ -2,6 +2,8 @@ import React, { useEffect, useState,useContext } from "react";
 import { useParams } from "react-router-dom";
 import { postContext } from "../Context/postsContext";
 import Posts from "./posts";
+import { userContext } from "../Context/userContext";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 const FullPost = () => {
   const{postData} = useContext(postContext)
   const { id } = useParams();
@@ -23,6 +25,72 @@ const FullPost = () => {
     }
   };
   const category = Post.length > 0 ? Post[0].category : undefined
+  const { currentUser } = useContext(userContext);
+
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [localLikesCount, setLocalLikesCount] = useState(0);
+
+  useEffect(() => {
+    if (Post.length > 0) {
+      setLocalLikesCount(Post[0].likes || 0);
+    }
+  }, [Post]);
+
+  useEffect(() => {
+    const fetchLikeState = async () => {
+      if (!currentUser || !id) return;
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:8000/check_post_like/?actor_id=${currentUser.id}&post_id=${id}`
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        setIsLiked(!!data.is_liked);
+      } catch (e) {
+        // ignore
+      }
+    };
+    fetchLikeState();
+  }, [currentUser, id]);
+
+  const handleLikeToggle = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!currentUser) {
+      alert("Please log in to like posts!");
+      return;
+    }
+    if (!id) return;
+    if (isLiking) return;
+
+    setIsLiking(true);
+    try {
+      if (isLiked) {
+        await fetch("http://127.0.0.1:8000/unlike_post/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actor_id: currentUser.id, post_id: id }),
+        });
+        setIsLiked(false);
+        setLocalLikesCount((prev) => Math.max(0, prev - 1));
+      } else {
+        await fetch("http://127.0.0.1:8000/like_post/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ actor_id: currentUser.id, post_id: id }),
+        });
+        setIsLiked(true);
+        setLocalLikesCount((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
   return (
     <>
       {Post.map((item, index) => (
@@ -32,9 +100,23 @@ const FullPost = () => {
           bg-white shadow-xl rounded-2xl border border-gray-200"
         >
           {/* Title */}
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-snug">
-            {item.title}
-          </h1>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-snug">
+              {item.title}
+            </h1>
+
+            <button
+              onClick={handleLikeToggle}
+              disabled={isLiking}
+              className="flex flex-col items-center justify-center cursor-pointer p-2 hover:bg-gray-100 rounded-xl transition-all"
+            >
+              <span className="text-3xl">
+                {isLiked ? <FaHeart className="text-red-600" /> : <FaRegHeart className="text-gray-600" />}
+              </span>
+              <span className="text-sm font-semibold text-gray-700 mt-1">{localLikesCount} {localLikesCount === 1 ? 'Like' : 'Likes'}</span>
+            </button>
+          </div>
+
 
           {/* Image */}
           <img

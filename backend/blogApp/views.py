@@ -1,7 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Users, Profiles, Posts
+
+from .models import Users, Profiles, Posts, PostUserLike
 from .serializer import UserSerializer, PostsSerializer, ProfilesSerializer
 
 
@@ -12,107 +13,127 @@ def users_view(request):
         serializer = UserSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == "POST":
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET", "POST"])
 def posts_view(request):
     if request.method == "GET":
-        data = Posts.objects.all()  
+        data = Posts.objects.all()
         serializer = PostsSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == "POST":
-        serializer = PostsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    serializer = PostsSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET", "POST"])
 def profiles_view(request):
     if request.method == "GET":
-        data = Profiles.objects.all()  
+        data = Profiles.objects.all()
         serializer = ProfilesSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == "POST":
-        serializer = ProfilesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = ProfilesSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["POST"])
 def follow_user(request):
     actor_id = request.data.get("actor_id")
     target_id = request.data.get("target_id")
-    
+
     if not actor_id or not target_id:
-        return Response({"error": "actor_id and target_id are required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+        return Response(
+            {"error": "actor_id and target_id are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     if actor_id == target_id:
-        return Response({"error": "You cannot follow yourself"}, status=status.HTTP_400_BAD_REQUEST)
-        
+        return Response(
+            {"error": "You cannot follow yourself"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     try:
         actor = Users.objects.get(id=actor_id)
         target = Users.objects.get(id=target_id)
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
     target.followers.add(actor)
     return Response({"message": "Successfully followed"}, status=status.HTTP_200_OK)
+
 
 @api_view(["POST"])
 def unfollow_user(request):
     actor_id = request.data.get("actor_id")
     target_id = request.data.get("target_id")
-    
+
     if not actor_id or not target_id:
-        return Response({"error": "actor_id and target_id are required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+        return Response(
+            {"error": "actor_id and target_id are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     try:
         actor = Users.objects.get(id=actor_id)
         target = Users.objects.get(id=target_id)
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
     target.followers.remove(actor)
-    return Response({"message": "Successfully unfollowed"}, status=status.HTTP_200_OK)
+    return Response(
+        {"message": "Successfully unfollowed"},
+        status=status.HTTP_200_OK,
+    )
+
 
 @api_view(["POST"])
 def login_view(request):
     email = request.data.get("email")
     password = request.data.get("password")
-    
+
     if not email or not password:
-        return Response({"error": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+        return Response(
+            {"error": "Email and password are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     try:
         user = Users.objects.get(email=email)
         if user.password == password:
             serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
     except Users.DoesNotExist:
-        return Response({"error": "User with this email does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "User with this email does not exist"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
 
 @api_view(["GET"])
 def check_follow_status(request):
     actor_id = request.query_params.get("actor_id")
     target_id = request.query_params.get("target_id")
-    
+
     if not actor_id or not target_id:
-        return Response({"error": "actor_id and target_id are required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+        return Response(
+            {"error": "actor_id and target_id are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     try:
         actor = Users.objects.get(id=actor_id)
         target = Users.objects.get(id=target_id)
@@ -120,6 +141,7 @@ def check_follow_status(request):
         return Response({"is_following": is_following}, status=status.HTTP_200_OK)
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(["GET"])
 def get_user_followers(request, user_id):
@@ -132,6 +154,7 @@ def get_user_followers(request, user_id):
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(["GET"])
 def get_user_following(request, user_id):
     try:
@@ -143,6 +166,7 @@ def get_user_following(request, user_id):
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(["PUT"])
 def update_profile(request, user_id):
     try:
@@ -151,15 +175,110 @@ def update_profile(request, user_id):
     except (Users.DoesNotExist, Profiles.DoesNotExist):
         return Response({"error": "User or Profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    # Update user name if provided
-    name = request.data.get('name')
+    name = request.data.get("name")
     if name:
         user.name = name
         user.save()
 
-    # The request might be multipart/form-data. The serializer handles it.
     serializer = ProfilesSerializer(profile, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# -------------------------
+# Post like / unlike
+# -------------------------
+
+@api_view(["GET"])
+def check_post_like(request):
+    """Returns {is_liked: bool} for actor_id + post_id."""
+    actor_id = request.query_params.get("actor_id")
+    post_id = request.query_params.get("post_id")
+
+    if not actor_id or not post_id:
+        return Response(
+            {"error": "actor_id and post_id are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        liked = PostUserLike.objects.filter(user_id=actor_id, post_id=post_id).exists()
+        return Response({"is_liked": liked}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+def like_post(request):
+    actor_id = request.data.get("actor_id")
+    post_id = request.data.get("post_id")
+
+    if not actor_id or not post_id:
+        return Response(
+            {"error": "actor_id and post_id are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        post = Posts.objects.get(id=post_id)
+        user = Users.objects.get(id=actor_id)
+
+        # create unique like
+        obj, created = PostUserLike.objects.get_or_create(user=user, post=post)
+        if created:
+            # only increment counter on first like
+            post.likes = post.likes + 1
+            post.save(update_fields=["likes"])
+            
+            # increment author's profile likes
+            try:
+                author_profile = Profiles.objects.get(username=post.username)
+                author_profile.likes += 1
+                author_profile.save(update_fields=["likes"])
+            except Profiles.DoesNotExist:
+                pass
+
+        return Response({"message": "liked", "likes": post.likes}, status=status.HTTP_200_OK)
+    except Posts.DoesNotExist:
+        return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["POST"])
+def unlike_post(request):
+    actor_id = request.data.get("actor_id")
+    post_id = request.data.get("post_id")
+
+    if not actor_id or not post_id:
+        return Response(
+            {"error": "actor_id and post_id are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        post = Posts.objects.get(id=post_id)
+        user = Users.objects.get(id=actor_id)
+
+        deleted, _ = PostUserLike.objects.filter(user=user, post=post).delete()
+        if deleted:
+            post.likes = max(0, post.likes - 1)
+            post.save(update_fields=["likes"])
+            
+            # decrement author's profile likes
+            try:
+                author_profile = Profiles.objects.get(username=post.username)
+                author_profile.likes = max(0, author_profile.likes - 1)
+                author_profile.save(update_fields=["likes"])
+            except Profiles.DoesNotExist:
+                pass
+
+        return Response({"message": "unliked", "likes": post.likes}, status=status.HTTP_200_OK)
+    except Posts.DoesNotExist:
+        return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+

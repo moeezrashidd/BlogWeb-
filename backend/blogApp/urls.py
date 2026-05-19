@@ -12,6 +12,11 @@ urlpatterns = [
     path('following/<int:user_id>/', views.get_user_following, name='get_user_following'),
     path('login/', views.login_view, name='login'),
     path('update_profile/<int:user_id>/', views.update_profile, name='update_profile'),
+
+    # Post like/unlike
+    path('check_post_like/', views.check_post_like, name='check_post_like'),
+    path('like_post/', views.like_post, name='like_post'),
+    path('unlike_post/', views.unlike_post, name='unlike_post'),
 ]
 
 
