@@ -5,33 +5,114 @@ import { userContext } from '../Context/userContext';
 import { profileContext } from '../Context/profileContext';
 import Posts from './posts';
 import Writers from '../components/writers';
+import FollowModal from '../components/FollowModal';
 
 const Account = () => {
 
 
   const { currentUser } = useContext(userContext);
   const [isFollowing, setIsFollowing] = useState(false);
-  console.log(currentUser)
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalUsers, setModalUsers] = useState([]);
+  const { id } = useParams()
+  
+  // Fetch follow status once when account page loads so it reflects follows done from writer cards.
+  useEffect(() => {
+    const fetchFollowStatus = async () => {
+      if (!currentUser) return;
+      const targetId = parseInt(id, 10);
+      if (Number.isNaN(targetId)) return;
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/check_follow_status/?actor_id=${currentUser.id}&target_id=${targetId}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setIsFollowing(!!data.is_following);
+        }
+      } catch (error) {
+        console.error("Error fetching follow status", error);
+      }
+    };
+
+    fetchFollowStatus();
+  }, [currentUser, id]);
+
+
+  const handleOpenFollowers = async (userId) => {
+    setModalTitle("Followers");
+    setModalUsers([]);
+    setModalOpen(true);
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/followers/${userId}/`);
+      if (response.ok) {
+        const data = await response.json();
+        setModalUsers(data);
+      }
+    } catch (error) {
+      console.error("Error fetching followers", error);
+    }
+  };
+
+  const handleOpenFollowing = async (userId) => {
+    setModalTitle("Following");
+    setModalUsers([]);
+    setModalOpen(true);
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/following/${userId}/`);
+      if (response.ok) {
+        const data = await response.json();
+        setModalUsers(data);
+      }
+    } catch (error) {
+      console.error("Error fetching following", error);
+    }
+  };
+
   const handleFollow = async (e) => {
     e.preventDefault();
+
     if (!currentUser) {
       alert('Please log in to follow users');
       return;
     }
+
+    const targetId = parseInt(id, 10);
+    if (Number.isNaN(targetId)) {
+      console.error("Cannot follow: account id param is not numeric", { id });
+      return;
+    }
+
     const actor_id = currentUser.id;
-    const endpoint = isFollowing ? 'http://127.0.0.1:8000/unfollow/' : 'http://127.0.0.1:8000/follow/';
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actor_id, target_id: parseInt(id) })
+    const endpoint = isFollowing
+      ? 'http://127.0.0.1:8000/unfollow/'
+      : 'http://127.0.0.1:8000/follow/';
+
+    // Make UI instant (optimistic update) and do not await the request
+    setIsFollowing(!isFollowing);
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ actor_id, target_id: targetId })
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const text = await response.text().catch(() => '');
+          console.error('Failed to toggle follow', { status: response.status, body: text });
+          // rollback UI
+          setIsFollowing((prev) => !prev);
+        }
+      })
+      .catch((err) => {
+        console.error('Error toggling follow', err);
+        // rollback UI
+        setIsFollowing((prev) => !prev);
       });
-      if (response.ok) setIsFollowing(!isFollowing);
-      else console.error('Failed to toggle follow');
-    } catch (err) { console.error('Error toggling follow', err); }
   };
 
-  const { id } = useParams()
   const { Profiles } = useContext(profileContext)
   const [accounts, setAccounts] = useState([])
 
@@ -95,7 +176,10 @@ const Account = () => {
                   <div className="flex gap-6 items-center">
 
                     {/* Following */}
-                    <div className="flex flex-col justify-center items-center">
+                    <div 
+                      className="flex flex-col justify-center items-center cursor-pointer hover:opacity-75 transition-opacity"
+                      onClick={() => handleOpenFollowing(account.username.id)}
+                    >
                       <span className="text-blue-700 font-semibold text-lg">
                         {account.following || "0"}
                       </span>
@@ -103,7 +187,10 @@ const Account = () => {
                     </div>
 
                     {/* Followers */}
-                    <div className="flex flex-col justify-center items-center">
+                    <div 
+                      className="flex flex-col justify-center items-center cursor-pointer hover:opacity-75 transition-opacity"
+                      onClick={() => handleOpenFollowers(account.username.id)}
+                    >
                       <span className="text-blue-700 font-semibold text-lg">
                         {account.followers || "0"}
                       </span>
@@ -135,15 +222,17 @@ const Account = () => {
                   {account.bio}
                 </p>
 
-                <button
-                  className="mt-3 px-6 py-2 bg-blue-600 md:flex hidden hover:bg-blue-700 
-            text-white text-sm md:text-base font-semibold 
-            rounded-xl shadow-md transition-all duration-300"
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`mt-3 px-6 py-2 md:flex hidden ${
+                    isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'
+                  } text-white text-sm md:text-base font-semibold rounded-xl shadow-md transition-all duration-300`}
                   onClick={handleFollow}
                   disabled={!currentUser}
                 >
-                  Follow
-                </button>
+                  {isFollowing ? 'Unfollow' : 'Follow'}
+                </motion.button>
               </div>
             </div>
 
@@ -151,8 +240,8 @@ const Account = () => {
             <div className="md:hidden flex flex-col justify-start mb-3">
 
               <div className="followers flex justify-evenly items-center mb-2">
-                <span className="  flex flex-col justify-center items-center"><span className='text-blue-700 font-semibold text-lg'> {account.following || "0"}</span><span className=' font-medium' >Following </span></span>
-                <span className="  flex flex-col justify-center items-center"><span className='text-blue-700 font-semibold text-lg'>{account.followers || "0"}</span><span className=' font-medium' >Followers </span></span>
+                <span className="cursor-pointer hover:opacity-75 transition-opacity flex flex-col justify-center items-center" onClick={() => handleOpenFollowing(account.username.id)}><span className='text-blue-700 font-semibold text-lg'> {account.following || "0"}</span><span className=' font-medium' >Following </span></span>
+                <span className="cursor-pointer hover:opacity-75 transition-opacity flex flex-col justify-center items-center" onClick={() => handleOpenFollowers(account.username.id)}><span className='text-blue-700 font-semibold text-lg'>{account.followers || "0"}</span><span className=' font-medium' >Followers </span></span>
                 <span className=" flex flex-col  justify-center items-center"><span className='text-blue-700 font-semibold text-lg'>{account.posts || "0"}</span><span className=' font-medium'  >Posts </span></span>
                 <span className="  flex flex-col justify-center items-center"><span className='text-blue-700 font-semibold text-lg'> {account.likes || "0"}</span><span className=' font-medium' >Likes </span></span>
               </div>
@@ -161,15 +250,17 @@ const Account = () => {
                 {account.bio}
               </p>
 
-              <button
-                className="mt-3 px-6 py-2 bg-blue-600 hover:bg-blue-700 
-            text-white text-sm md:text-base font-semibold 
-            rounded-xl shadow-md transition-all duration-300"
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`mt-3 px-6 py-2 ${
+                  isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'
+                } text-white text-sm md:text-base font-semibold rounded-xl shadow-md transition-all duration-300`}
                 onClick={handleFollow}
                 disabled={!currentUser}
               >
-                Follow
-              </button></div>
+                {isFollowing ? 'Unfollow' : 'Follow'}
+              </motion.button></div>
           </motion.div>
         ))}
       </div>
@@ -177,6 +268,13 @@ const Account = () => {
 
       <Posts username={accounts?.[0]?.username?.username ?? id} />
       <Writers category={category} id={id} />
+
+      <FollowModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        users={modalUsers}
+      />
     </>
   )
 }

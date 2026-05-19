@@ -104,3 +104,41 @@ def login_view(request):
             return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
     except Users.DoesNotExist:
         return Response({"error": "User with this email does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(["GET"])
+def check_follow_status(request):
+    actor_id = request.query_params.get("actor_id")
+    target_id = request.query_params.get("target_id")
+    
+    if not actor_id or not target_id:
+        return Response({"error": "actor_id and target_id are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    try:
+        actor = Users.objects.get(id=actor_id)
+        target = Users.objects.get(id=target_id)
+        is_following = target.followers.filter(id=actor.id).exists()
+        return Response({"is_following": is_following}, status=status.HTTP_200_OK)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(["GET"])
+def get_user_followers(request, user_id):
+    try:
+        user = Users.objects.get(id=user_id)
+        followers = user.followers.all()
+        profiles = Profiles.objects.filter(username__in=followers)
+        serializer = ProfilesSerializer(profiles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(["GET"])
+def get_user_following(request, user_id):
+    try:
+        user = Users.objects.get(id=user_id)
+        following = user.following.all()
+        profiles = Profiles.objects.filter(username__in=following)
+        serializer = ProfilesSerializer(profiles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
