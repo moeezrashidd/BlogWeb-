@@ -1,53 +1,93 @@
 import React, { useState } from "react";
-import {categories} from "../Context/data"
+import { categories } from "../Context/data";
+import TextEditor from "../components/TextEditor";
 const AddPost = () => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     category: "Technology",
-    image: null,
-    imagePreview: null,
+    images: [],
+    imagePreviews: [],
   });
-
-
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "image") {
-      const file = files[0];
+    if (name === "images") {
+      const selectedFiles = Array.from(files);
+      const previews = selectedFiles.map((file) => URL.createObjectURL(file));
       setFormData({
         ...formData,
-        image: file,
-        imagePreview: URL.createObjectURL(file),
+        images: [...formData.images, ...selectedFiles],
+        imagePreviews: [...formData.imagePreviews, ...previews],
       });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleContentChange = (content) => {
+    setFormData({ ...formData, content });
+  };
+
+  const removeImage = (index) => {
+    const newImages = [...formData.images];
+    const newPreviews = [...formData.imagePreviews];
+    newImages.splice(index, 1);
+    newPreviews.splice(index, 1);
+    setFormData({
+      ...formData,
+      images: newImages,
+      imagePreviews: newPreviews,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const now = new Date();
-    const newPost = {
-      title: formData.title,
-      content: formData.content,
-      category: formData.category,
-      image: formData.image,
-      date: now.toLocaleDateString(),
-      time: now.toLocaleTimeString(),
-    };
+    const userId = localStorage.getItem("loggedInUserId");
+    if (!userId) {
+      alert("You must be logged in to create a post.");
+      return;
+    }
 
-    console.log("New Post:", newPost);
+    const data = new FormData();
+    data.append("username", userId);
+    data.append("title", formData.title);
+    data.append("content", formData.content);
+    data.append("category", formData.category);
 
-    // Reset form
-    setFormData({
-      title: "",
-      content: "",
-      category: "Technology",
-      image: null,
-      imagePreview: null,
+    formData.images.forEach((file) => {
+      data.append("images", file);
     });
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/posts/", {
+        method: "POST",
+        body: data,
+      });
+
+      if (response.ok) {
+        const newPost = await response.json();
+        console.log("Post created successfully:", newPost);
+        
+        // Reset form
+        setFormData({
+          title: "",
+          content: "",
+          category: "Technology",
+          images: [],
+          imagePreviews: [],
+        });
+        alert("Post published successfully!");
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to create post", errorData);
+        alert("Failed to publish post.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while publishing.");
+    }
   };
 
   return (
@@ -81,15 +121,7 @@ const AddPost = () => {
           <label className="block text-gray-700 font-semibold mb-2">
             Post Content
           </label>
-          <textarea
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            rows="6"
-            placeholder="Write your post here..."
-            required
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition resize-none"
-          ></textarea>
+          <TextEditor value={formData.content} onChange={handleContentChange} />
         </div>
 
         {/* Category */}
@@ -114,22 +146,36 @@ const AddPost = () => {
         {/* Image Upload */}
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
-            Upload Cover Image
+            Upload Images
           </label>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col gap-4">
             <input
               type="file"
-              name="image"
+              name="images"
               accept="image/*"
+              multiple
               onChange={handleChange}
               className="w-full border border-gray-300 p-2 rounded-lg cursor-pointer focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
             />
-            {formData.imagePreview && (
-              <img
-                src={formData.imagePreview}
-                alt="Preview"
-                className="w-32 h-32 object-cover rounded-lg shadow-md border border-gray-200"
-              />
+            {formData.imagePreviews.length > 0 && (
+              <div className="flex flex-wrap gap-4 mt-2">
+                {formData.imagePreviews.map((preview, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={preview}
+                      alt={`Preview ${index}`}
+                      className="w-32 h-32 object-cover rounded-lg shadow-md border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm shadow opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

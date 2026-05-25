@@ -1,4 +1,4 @@
-from .models import Users, Posts, Profiles
+from .models import Users, Posts, Profiles, PostImage
 from rest_framework import serializers
 
 
@@ -8,9 +8,15 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'username', 'email', 'password']
 
 
+class PostImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostImage
+        fields = ['id', 'image', 'created_at']
+
 class PostsSerializer(serializers.ModelSerializer):
    
     author = UserSerializer(source='username', read_only=True)
+    images = PostImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Posts
@@ -20,9 +26,11 @@ class PostsSerializer(serializers.ModelSerializer):
             'username',  
             'title',
             'content',
+            'category',
             'created_at',
             'updated_at',
             'likes',
+            'images',
         ]
 
 
@@ -42,3 +50,4 @@ class ProfilesSerializer(serializers.ModelSerializer):
             'likes',
             'posts',
         ]
+

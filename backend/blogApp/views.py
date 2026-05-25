@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Users, Profiles, Posts, PostUserLike
+from .models import Users, Profiles, Posts, PostUserLike, PostImage
 from .serializer import UserSerializer, PostsSerializer, ProfilesSerializer
 
 
@@ -23,13 +23,19 @@ def users_view(request):
 @api_view(["GET", "POST"])
 def posts_view(request):
     if request.method == "GET":
-        data = Posts.objects.all()
+        data = Posts.objects.all().order_by('-created_at')
         serializer = PostsSerializer(data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     serializer = PostsSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        post = serializer.save()
+        
+        # Handle multiple images
+        images = request.FILES.getlist('images')
+        for image in images:
+            PostImage.objects.create(post=post, image=image)
+            
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

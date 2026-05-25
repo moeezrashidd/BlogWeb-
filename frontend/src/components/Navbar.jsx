@@ -7,6 +7,7 @@ import { FaLinesLeaning } from "react-icons/fa6";
 import { LuSearchX } from "react-icons/lu";
 import { Link ,useNavigate } from 'react-router-dom';
 import { userContext } from '../Context/userContext';
+import { Plus } from 'lucide-react';
 
 const Navbar = () => {
   const { currentUser } = useContext(userContext)
@@ -74,7 +75,10 @@ const Navbar = () => {
           }}>{toggleSearch ? <LuSearchX /> : <FcSearch />}</span>
 
           {currentUser ? (
-            <div className="flex justify-center items-center gap-2 pl-2">
+            <div className="flex justify-center items-center gap-3 pl-2">
+              <Link to="/addPost" title="Add New Post" className="flex justify-center items-center bg-blue-100 hover:bg-blue-200 text-blue-600 p-2 rounded-full transition shadow-sm cursor-pointer">
+                <Plus size={22} className="stroke-2" />
+              </Link>
               <Link to={`/account/${currentUser.id}/${currentUser.username}`}>
                 <div className="w-10 h-10 flex justify-center items-center bg-blue-600 text-white rounded-full font-bold text-lg border-2 border-transparent hover:border-blue-400 cursor-pointer">
                   {currentUser.name ? currentUser.name[0].toUpperCase() : "U"}
