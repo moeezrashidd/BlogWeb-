@@ -158,9 +158,13 @@ export const WritersCard = ({ writer }) => {
   return (
       <motion.div
         onClick={handleCardClick}
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.03 }}
         transition={{ duration: 0.3 }}
-        className="writer flex flex-col items-center w-[96vw] sm:w-[265px] md:w-[300px] bg-white border border-gray-200 rounded-2xl p-5 gap-3 hover:border-blue-500 shadow-2xl transition-all duration-300 cursor-pointer"
+        className="writer flex flex-col items-center
+          w-full sm:w-[calc(50%-8px)] md:w-[calc(33.333%-12px)] lg:w-[calc(25%-12px)] max-w-[280px]
+          bg-white border border-gray-200 rounded-xl sm:rounded-2xl
+          p-3 sm:p-5 gap-2 sm:gap-3
+          hover:border-blue-500 shadow-md sm:shadow-2xl transition-all duration-300 cursor-pointer"
       >
         <img
           src={
@@ -171,18 +175,18 @@ export const WritersCard = ({ writer }) => {
               : `https://api.dicebear.com/7.x/avataaars/svg?seed=${writer.username?.username || 'user'}`
           }
           alt={`${writer.username?.name}'s avatar`}
-          className="w-20 h-20 2xl:w-28 p-1 2xl:h-28 object-cover rounded-full border-4 border-blue-500 shadow-2xl bg-white"
+          className="w-14 h-14 sm:w-20 sm:h-20 p-0.5 sm:p-1 object-cover rounded-full border-4 border-blue-500 shadow-lg bg-white"
         />
 
-        <h3 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+        <h3 className="text-base sm:text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors text-center">
           {writer.username?.name}
         </h3>
 
-        <span className="text-sm text-blue-500 font-medium -mt-4">
+        <span className="text-xs sm:text-sm text-blue-500 font-medium -mt-2 sm:-mt-3">
           @{writer.username?.username}
         </span>
 
-        <p className="text-center text-gray-700 text-sm md:text-base line-clamp-3">
+        <p className="text-center text-gray-700 text-xs sm:text-sm line-clamp-2 sm:line-clamp-3">
           {writer.bio}
         </p>
 
@@ -191,9 +195,10 @@ export const WritersCard = ({ writer }) => {
           whileTap={{ scale: 0.95 }}
           onClick={handleFollow}
           disabled={isTogglingFollow}
-          className={`mt-3 px-6 py-2 ${
-            isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'
-          } ${isTogglingFollow ? 'opacity-70 cursor-not-allowed' : ''} text-white text-sm md:text-base font-semibold rounded-xl shadow-md transition-all duration-300`}
+          className={`mt-1 sm:mt-2 px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl shadow-md transition-all duration-300
+            ${isFollowing ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'}
+            ${isTogglingFollow ? 'opacity-70 cursor-not-allowed' : ''}
+            text-white`}
         >
           {isTogglingFollow ? 'Loading...' : isFollowing ? 'Unfollow' : 'Follow'}
         </motion.button>

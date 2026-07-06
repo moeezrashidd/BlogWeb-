@@ -4,26 +4,17 @@ import { postContext } from "../Context/postsContext";
 import Posts from "./posts";
 import { userContext } from "../Context/userContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import LexicalRenderer from "../components/LexicalRenderer";
 const FullPost = () => {
   const{postData} = useContext(postContext)
   const { id } = useParams();
   const [Post, setPost] = useState([]);
-  const [DicsManage, setDicsManage] = useState(2000);
   
   useEffect(() => {
     const tempPost = postData.filter((post) => post.id === parseInt(id));
     setPost(tempPost);
   }, [id , postData]);
 
-  
-
-  const handleReadMore = (e) => {
-    if (DicsManage < e) {
-      setDicsManage((pre) => pre + 2000);
-    } else {
-      setDicsManage(2000);
-    }
-  };
   const category = Post.length > 0 ? Post[0].category : undefined
   const { currentUser } = useContext(userContext);
 
@@ -126,27 +117,11 @@ const FullPost = () => {
           />
 
           {/* Description */}
-          <p className="text-gray-800 text-base md:text-lg leading-relaxed">
-            {item.content.length > DicsManage
-              ? item.content.slice(0, DicsManage) + "..."
-              : item.content}
-          </p>
-
-          {/* Read More Button */}
-          <div className="flex items-center justify-center gap-4 w-full my-6">
-            <span className="hidden sm:flex flex-1 border-t"></span>
-
-            <button
-              onClick={() => handleReadMore(item.content.length)}
-              className="px-5 py-2 text-lg sm:text-xl font-medium text-blue-600 
-              border-2 border-blue-600 rounded-xl 
-              hover:bg-blue-600 hover:text-white transition-all duration-300"
-            >
-              {DicsManage < item.content.length ? "Read More" : "Close"}
-            </button>
-
-            <span className="hidden sm:flex flex-1 border-t"></span>
+          <div className="text-gray-800 text-base md:text-lg leading-relaxed">
+            <LexicalRenderer content={item.content} />
           </div>
+
+
 
           {/* Writer Info */}
           <div className="flex flex-col gap-1 text-gray-600 text-sm sm:text-base">

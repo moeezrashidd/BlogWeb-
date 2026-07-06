@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { userContext } from "../Context/userContext";
+
 const SignUpBar = () => {
+  const { currentUser } = useContext(userContext);
+
+  // Hide for logged-in users — they've already joined
+  if (currentUser) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}

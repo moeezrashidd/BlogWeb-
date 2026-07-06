@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaHeart, FaRegHeart, FaRegSave } from "react-icons/fa";
 import { userContext } from "../Context/userContext";
+import { extractPlainText } from "./LexicalRenderer";
 
 const PostCard = ({ item }) => {
   const { currentUser } = useContext(userContext);
@@ -92,31 +93,31 @@ const PostCard = ({ item }) => {
     <motion.div
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.3 }}
-      className="postCard w-full sm:w-[48%] md:w-[350px] lg:w-[400px] 
-        bg-white rounded-2xl shadow-2xl border border-gray-200 
-        hover:border-blue-500 
-        p-5 flex flex-col justify-between gap-3 transition-all duration-300 relative"
+      className="postCard w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-12px)] max-w-sm
+        bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-2xl border border-gray-200
+        hover:border-blue-500
+        p-3 sm:p-5 flex flex-col justify-between gap-2 sm:gap-3 transition-all duration-300 relative"
     >
       {/* Title */}
-      <h2 className="title text-xl font-bold text-gray-900 line-clamp-2">
+      <h2 className="title text-base sm:text-xl font-bold text-gray-900 line-clamp-2 pr-8">
         {item.title}
       </h2>
 
       {/* content */}
-      <p className="dec text-gray-700 text-sm md:text-base line-clamp-3">
-        {item.content.length > 150
-          ? item.content.slice(0, 150) + "..."
-          : item.content}
+      <p className="dec text-gray-600 text-xs sm:text-sm md:text-base line-clamp-2 sm:line-clamp-3">
+        {(() => {
+          const plain = extractPlainText(item.content);
+          return plain.length > 120 ? plain.slice(0, 120) + '...' : plain;
+        })()}
       </p>
 
       {/* Meta Info */}
-      <div className="flex flex-col gap-1 text-sm text-gray-600">
+      <div className="flex flex-col gap-0.5 text-xs sm:text-sm text-gray-600">
         <p>
           <span className="font-semibold text-gray-800">Author:</span>{" "}
-          {item.author.username} 
+          {item.author.username}
         </p>
-       
-        <p className="hidden md:block">
+        <p className="hidden sm:block">
           <span className="font-semibold text-gray-800">Created at:</span> {item.created_at}
         </p>
       </div>
@@ -124,27 +125,27 @@ const PostCard = ({ item }) => {
       {/* Read More Button */}
       <Link
         to={`/post/${item.id}/${item.title}`}
-        className="mt-3 w-full sm:w-auto px-5 py-2 
-          bg-blue-600 text-white font-medium rounded-xl 
-          text-center hover:bg-blue-700 transition-all duration-300"
+        className="mt-1 sm:mt-2 w-full px-4 py-1.5 sm:py-2
+          bg-blue-600 text-white font-medium rounded-lg sm:rounded-xl
+          text-xs sm:text-sm text-center hover:bg-blue-700 transition-all duration-300"
       >
         Read More
       </Link>
 
 
-      <div className="absolute right-4 top-3 z-50  flex flex-col justify-center items-center gap-3">
+      <div className="absolute right-2 sm:right-4 top-2 sm:top-3 z-50 flex flex-col justify-center items-center gap-2">
         <span
           role="button"
           aria-label={isLiked ? "Unlike" : "Like"}
           onClick={handleLikeToggle}
           className="flex flex-col items-center justify-center cursor-pointer"
         >
-          <span className="text-2xl">
+          <span className="text-lg sm:text-2xl">
             {isLiked ? <FaHeart className="text-red-600" /> : <FaRegHeart />}
           </span>
-          <span className="text-xs font-semibold text-gray-600 mt-1">{localLikesCount}</span>
+          <span className="text-[10px] sm:text-xs font-semibold text-gray-600">{localLikesCount}</span>
         </span>
-        <span className="text-2xl hover:text-blue-600 cursor-pointer "><FaRegSave /></span>
+        <span className="text-lg sm:text-2xl hover:text-blue-600 cursor-pointer"><FaRegSave /></span>
       </div>
 
     </motion.div>

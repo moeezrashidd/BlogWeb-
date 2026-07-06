@@ -92,11 +92,15 @@ const ToolbarPlugin = () => {
 
 const OnChangePlugin = ({ onChange }) => {
   const [editor] = useLexicalComposerContext();
+  const isFirstRender = React.useRef(true);
   React.useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
+    return editor.registerUpdateListener(({ editorState, dirtyElements, dirtyLeaves }) => {
+      // Skip the initial mount update (empty state) so we don't overwrite content with an empty JSON blob
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        return;
+      }
       editorState.read(() => {
-        // You can get HTML, JSON, or plain text here.
-        // For simplicity, we'll store the JSON state.
         const json = editorState.toJSON();
         onChange(JSON.stringify(json));
       });
