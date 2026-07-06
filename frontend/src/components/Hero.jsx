@@ -43,7 +43,6 @@ const Hero = () => {
                  h-[340px] sm:h-[420px] md:h-[62vh] lg:h-[68vh] xl:h-[72vh]"
       style={{ maxHeight: '750px' }}
     >
-      {/* ── Slides ── */}
       {sliderData.map((item, index) => (
         <div
           key={index}
@@ -51,27 +50,20 @@ const Hero = () => {
           className="absolute inset-0 transition-opacity duration-700 ease-in-out"
           style={{ opacity: index === current ? 1 : 0, zIndex: index === current ? 10 : 0 }}
         >
-          {/* Background image */}
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${item.img})` }}
           />
-
-          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-          {/* Content — safe horizontal padding so arrows never overlap on any screen */}
           <div className="relative z-10 h-full flex items-center px-5 sm:px-14 lg:px-20">
             <div className="w-full max-w-lg lg:max-w-2xl">
-
-              {/* Category badge */}
               <span className="inline-block text-[10px] sm:text-xs font-bold tracking-widest uppercase
                                bg-blue-600 text-white px-3 py-1 rounded-full mb-3 sm:mb-4">
                 {item.category}
               </span>
 
-              {/* Title */}
               <h1
                 className="text-white font-extrabold leading-tight mb-3 sm:mb-4
                            text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
@@ -80,7 +72,6 @@ const Hero = () => {
                 {item.title}
               </h1>
 
-              {/* Description — hidden on very small screens to save space */}
               <p className="hidden sm:block text-gray-200 text-sm md:text-base lg:text-lg leading-relaxed mb-6
                             line-clamp-2 md:line-clamp-none"
                 style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
@@ -88,7 +79,6 @@ const Hero = () => {
                 {item.desc}
               </p>
 
-              {/* CTA */}
               <div className="flex flex-wrap gap-2 sm:gap-3 mt-2 sm:mt-0">
                 <Link
                   to={`/posts/${encodeURIComponent(item.category)}`}
@@ -122,7 +112,6 @@ const Hero = () => {
         </div>
       ))}
 
-      {/* ── Side arrows — desktop only (md+) ── */}
       <button
         aria-label="Previous slide"
         onClick={handlePrev}
@@ -155,10 +144,7 @@ const Hero = () => {
         </svg>
       </button>
 
-      {/* ── Bottom control bar (dots + mobile arrows all together) ── */}
       <div className="absolute bottom-4 left-0 right-0 z-30 flex items-center justify-center gap-3">
-
-        {/* Prev arrow — mobile only */}
         <button
           aria-label="Previous slide"
           onClick={handlePrev}
@@ -172,7 +158,6 @@ const Hero = () => {
           </svg>
         </button>
 
-        {/* Dots */}
         {sliderData.map((_, index) => (
           <button
             key={index}
@@ -186,7 +171,6 @@ const Hero = () => {
           />
         ))}
 
-        {/* Next arrow — mobile only */}
         <button
           aria-label="Next slide"
           onClick={handleNext}
@@ -201,7 +185,6 @@ const Hero = () => {
         </button>
       </div>
 
-      {/* ── Progress bar ── */}
       <div className="absolute bottom-0 left-0 right-0 z-30 h-[3px] bg-white/10">
         <div
           key={current}

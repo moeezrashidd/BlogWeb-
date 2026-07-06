@@ -23,7 +23,6 @@ def welcomeMail(sender,instance , created ,**kwargs):
 @receiver(post_save , sender= Users)
 def auto_Create_Profile(sender , instance , created ,**kwargs):
     if created:
-        # Create a basic profile with default values to satisfy constraints
         Profiles.objects.create(username=instance, category="Technology", disc="")
 
 @receiver(post_save , sender= Users)

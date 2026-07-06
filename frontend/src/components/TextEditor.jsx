@@ -94,8 +94,7 @@ const OnChangePlugin = ({ onChange }) => {
   const [editor] = useLexicalComposerContext();
   const isFirstRender = React.useRef(true);
   React.useEffect(() => {
-    return editor.registerUpdateListener(({ editorState, dirtyElements, dirtyLeaves }) => {
-      // Skip the initial mount update (empty state) so we don't overwrite content with an empty JSON blob
+    return editor.registerUpdateListener(({ editorState }) => {
       if (isFirstRender.current) {
         isFirstRender.current = false;
         return;

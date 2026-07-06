@@ -38,9 +38,7 @@ const FullPost = () => {
         if (!res.ok) return;
         const data = await res.json();
         setIsLiked(!!data.is_liked);
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) {}
     };
     fetchLikeState();
   }, [currentUser, id]);
@@ -87,10 +85,8 @@ const FullPost = () => {
       {Post.map((item, index) => (
         <div
           key={index}
-          className="post flex flex-col gap-6 my-6 px-4 sm:px-8 lg:px-20 py-6 
-          bg-white shadow-xl rounded-2xl border border-gray-200"
+          className="post flex flex-col gap-6 my-6 px-4 sm:px-8 lg:px-20 py-6 bg-white shadow-xl rounded-2xl border border-gray-200"
         >
-          {/* Title */}
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-snug">
               {item.title}
@@ -108,29 +104,20 @@ const FullPost = () => {
             </button>
           </div>
 
-
-          {/* Image */}
           <img
             src={`${item.photo}`}
             alt="Photo of Post"
             className="w-full rounded-xl shadow-md object-cover xl:h-[70vh]"
           />
 
-          {/* Description */}
           <div className="text-gray-800 text-base md:text-lg leading-relaxed">
             <LexicalRenderer content={item.content} />
           </div>
 
-
-
-          {/* Writer Info */}
           <div className="flex flex-col gap-1 text-gray-600 text-sm sm:text-base">
             <span>
               Writer:{" "}
-              <span
-                className="text-black text-lg font-semibold hover:text-blue-600 
-                border-b-2 border-transparent hover:border-blue-500 transition-all cursor-pointer"
-              >
+              <span className="text-black text-lg font-semibold hover:text-blue-600 border-b-2 border-transparent hover:border-blue-500 transition-all cursor-pointer">
                 {item.author.username}
               </span>
             </span>

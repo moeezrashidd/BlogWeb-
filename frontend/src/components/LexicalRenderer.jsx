@@ -9,7 +9,6 @@ import { LinkNode, AutoLinkNode } from '@lexical/link';
 import { CodeNode, CodeHighlightNode } from '@lexical/code';
 import { TableNode, TableCellNode, TableRowNode } from '@lexical/table';
 
-// Theme matching the editor's theme so styling is consistent
 const theme = {
   ltr: 'ltr',
   rtl: 'rtl',
@@ -53,15 +52,7 @@ const NODES = [
   LinkNode,
 ];
 
-/**
- * Renders Lexical JSON content as formatted rich text (read-only).
- * Falls back to rendering as plain text if content is not valid Lexical JSON.
- *
- * Uses `editorState` in initialConfig (not a plugin effect) so the content
- * is loaded synchronously at construction time — avoiding the blank-on-first-render bug.
- */
 export default function LexicalRenderer({ content, className = '' }) {
-  // Detect whether this is Lexical JSON or legacy plain text
   const isLexicalJson = React.useMemo(() => {
     if (!content) return false;
     try {
@@ -73,7 +64,6 @@ export default function LexicalRenderer({ content, className = '' }) {
   }, [content]);
 
   if (!isLexicalJson) {
-    // Legacy plain-text fallback for posts written before the rich editor
     return (
       <div className={`text-gray-800 leading-relaxed whitespace-pre-wrap ${className}`}>
         {content}
@@ -81,13 +71,11 @@ export default function LexicalRenderer({ content, className = '' }) {
     );
   }
 
-  // Pass the JSON string directly as editorState so Lexical loads it at
-  // construction time — no useEffect plugin needed.
   const initialConfig = {
     namespace: 'BlogRenderer',
     theme,
     editable: false,
-    editorState: content,      // ← key fix: initialise with the saved JSON
+    editorState: content,
     onError(error) {
       console.error(error);
     },
@@ -95,8 +83,6 @@ export default function LexicalRenderer({ content, className = '' }) {
   };
 
   return (
-    // key=content forces a full remount if the post changes (e.g. navigating
-    // between posts), because LexicalComposer ignores initialConfig changes after mount.
     <LexicalComposer key={content} initialConfig={initialConfig}>
       <div className={`lexical-renderer text-gray-800 leading-relaxed ${className}`}>
         <RichTextPlugin
@@ -111,16 +97,11 @@ export default function LexicalRenderer({ content, className = '' }) {
   );
 }
 
-/**
- * Extracts plain text from a Lexical JSON string for use in card previews.
- * Falls back to the raw string if not valid Lexical JSON.
- */
 export function extractPlainText(content) {
   if (!content) return '';
   try {
     const parsed = JSON.parse(content);
     if (!parsed || parsed.root === undefined) return content;
-    // Recursively collect text from all nodes
     const getText = (node) => {
       if (node.type === 'text') return node.text || '';
       if (node.children) return node.children.map(getText).join(' ');

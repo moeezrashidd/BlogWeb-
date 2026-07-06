@@ -57,7 +57,6 @@ const PostCard = ({ item }) => {
     if (!postId) return;
     if (isLiking) return;
 
-    // Optimistic UI: toggle immediately.
     setIsLiked((prev) => !prev);
     setLocalLikesCount((prev) => (isLiked ? Math.max(0, prev - 1) : prev + 1));
 
@@ -69,14 +68,12 @@ const PostCard = ({ item }) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ actor_id: currentUser.id, post_id: postId }),
         });
-        // revert to server-confirmed state on error below.
       } else {
         await fetch("http://127.0.0.1:8000/like_post/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ actor_id: currentUser.id, post_id: postId }),
         });
-        // optimistic state already updated; keep current UI until next refetch.
       }
     } catch (err) {
       console.error(err);
@@ -98,12 +95,10 @@ const PostCard = ({ item }) => {
         hover:border-blue-500
         p-3 sm:p-5 flex flex-col justify-between gap-2 sm:gap-3 transition-all duration-300 relative"
     >
-      {/* Title */}
       <h2 className="title text-base sm:text-xl font-bold text-gray-900 line-clamp-2 pr-8">
         {item.title}
       </h2>
 
-      {/* content */}
       <p className="dec text-gray-600 text-xs sm:text-sm md:text-base line-clamp-2 sm:line-clamp-3">
         {(() => {
           const plain = extractPlainText(item.content);

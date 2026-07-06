@@ -30,12 +30,9 @@ def posts_view(request):
     serializer = PostsSerializer(data=request.data)
     if serializer.is_valid():
         post = serializer.save()
-        
-        # Handle multiple images
         images = request.FILES.getlist('images')
         for image in images:
             PostImage.objects.create(post=post, image=image)
-            
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -194,13 +191,9 @@ def update_profile(request, user_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# -------------------------
-# Post like / unlike
-# -------------------------
 
 @api_view(["GET"])
 def check_post_like(request):
-    """Returns {is_liked: bool} for actor_id + post_id."""
     actor_id = request.query_params.get("actor_id")
     post_id = request.query_params.get("post_id")
 
@@ -232,14 +225,11 @@ def like_post(request):
         post = Posts.objects.get(id=post_id)
         user = Users.objects.get(id=actor_id)
 
-        # create unique like
         obj, created = PostUserLike.objects.get_or_create(user=user, post=post)
         if created:
-            # only increment counter on first like
             post.likes = post.likes + 1
             post.save(update_fields=["likes"])
             
-            # increment author's profile likes
             try:
                 author_profile = Profiles.objects.get(username=post.username)
                 author_profile.likes += 1
@@ -274,7 +264,6 @@ def unlike_post(request):
             post.likes = max(0, post.likes - 1)
             post.save(update_fields=["likes"])
             
-            # decrement author's profile likes
             try:
                 author_profile = Profiles.objects.get(username=post.username)
                 author_profile.likes = max(0, author_profile.likes - 1)
