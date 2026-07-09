@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react"; // 👁️ icons
 import axios from "axios";
 import { userContext } from "../Context/userContext";
+import API_BASE_URL from "../config";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -14,7 +15,7 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://127.0.0.1:8000/login/", { email, password });
+      const response = await axios.post(`${API_BASE_URL}/login/`, { email, password });
       
       // Update global state and local storage
       const user = response.data;

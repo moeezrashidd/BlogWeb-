@@ -23,7 +23,7 @@ const SignUp = () => {
    
     try {
 
-      const user = await axios.post("http://127.0.0.1:8000/users/", formData)
+      const user = await axios.post("https://moeezrashidd.pythonanywhere.com/users/", formData)
 
       alert("Thanks for joining our family! Please sign in.")
       navigate("/signIn");

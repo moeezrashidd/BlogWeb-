@@ -10,7 +10,7 @@ export const ProfileProvider = ({ children }) => {
 
     const refreshProfiles = async () => {
         try {
-            const data = await axios.get("http://127.0.0.1:8000/profiles/")
+            const data = await axios.get("https://moeezrashidd.pythonanywhere.com/profiles/")
             setProfiles(data.data)
             return data.data
         } catch (error) {

@@ -7,6 +7,7 @@ import Posts from './posts'
 import Writers from '../components/writers'
 import FollowModal from '../components/FollowModal'
 import EditProfileModal from '../components/EditProfileModal'
+import API_BASE_URL from '../config'
 
 const Account = () => {
   const { currentUser } = useContext(userContext)
@@ -155,7 +156,7 @@ const Account = () => {
                     account.profilePic
                       ? account.profilePic.startsWith('http')
                         ? account.profilePic
-                        : `http://127.0.0.1:8000${account.profilePic}`
+                    : `${API_BASE_URL}${account.profilePic}`
                       : `https://api.dicebear.com/7.x/avataaars/svg?seed=${account.username?.username || 'user'}`
                   }
                   alt={`${account.username?.name}'s avatar`}
