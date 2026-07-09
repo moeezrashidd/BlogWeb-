@@ -61,7 +61,7 @@ const AddPost = () => {
     });
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/posts/", {
+      const response = await fetch("https://moeezrashidd.pythonanywhere.com/posts/", {
         method: "POST",
         body: data,
       });

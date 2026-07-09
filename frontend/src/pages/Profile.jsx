@@ -6,7 +6,7 @@ import axios from 'axios'
 import { userContext } from '../Context/userContext'
 import { profileContext } from '../Context/profileContext'
 
-const API_BASE = 'http://127.0.0.1:8000'
+const API_BASE = 'https://moeezrashidd.pythonanywhere.com/'
 
 const categoryOptions = [
   'Technology',
@@ -67,7 +67,7 @@ const Profile = () => {
 
   const avatarUrl = useMemo(() => {
     if (!myProfile?.profilePic) return ''
-    if (myProfile.profilePic.startsWith('http')) return myProfile.profilePic
+    if (myProfile.profilePic.startsWith('https')) return myProfile.profilePic
     return `${API_BASE}${myProfile.profilePic}`
   }, [myProfile])
 

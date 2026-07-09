@@ -30,7 +30,7 @@ const PostCard = ({ item }) => {
     const fetchLikeState = async () => {
       try {
         const res = await fetch(
-          `http://127.0.0.1:8000/check_post_like/?actor_id=${actorId}&post_id=${postId}`,
+          `https://moeezrashidd.pythonanywhere.com/check_post_like/?actor_id=${actorId}&post_id=${postId}`,
           { signal: controller.signal }
         );
         if (!res.ok) return;
@@ -63,13 +63,13 @@ const PostCard = ({ item }) => {
     setIsLiking(true);
     try {
       if (isLiked) {
-        await fetch("http://127.0.0.1:8000/unlike_post/", {
+        await fetch("https://moeezrashidd.pythonanywhere.com/unlike_post/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ actor_id: currentUser.id, post_id: postId }),
         });
       } else {
-        await fetch("http://127.0.0.1:8000/like_post/", {
+        await fetch("https://moeezrashidd.pythonanywhere.com/like_post/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ actor_id: currentUser.id, post_id: postId }),

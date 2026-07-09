@@ -44,7 +44,7 @@ const FollowModal = ({ isOpen, onClose, title, users }) => {
                       <img
                         src={
                           profile.profilePic
-                            ? (profile.profilePic.startsWith('http') ? profile.profilePic : `http://127.0.0.1:8000${profile.profilePic}`)
+                            ? (profile.profilePic.startsWith('http') ? profile.profilePic : `https://moeezrashidd.pythonanywhere.com/${profile.profilePic}`)
                             : `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username?.username || 'user'}`
                         }
                         alt={`${profile.username?.name}'s avatar`}

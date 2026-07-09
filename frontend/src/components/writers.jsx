@@ -120,8 +120,8 @@ export const WritersCard = ({ writer }) => {
 
     const previous = isFollowing;
     const endpoint = isFollowing
-      ? 'http://127.0.0.1:8000/unfollow/'
-      : 'http://127.0.0.1:8000/follow/';
+      ? 'https://moeezrashidd.pythonanywhere.com/unfollow/'
+      : 'https://moeezrashidd.pythonanywhere.com/follow/';
 
     setIsTogglingFollow(true);
 
@@ -171,7 +171,7 @@ export const WritersCard = ({ writer }) => {
             writer.profilePic
               ? writer.profilePic.startsWith('http')
                 ? writer.profilePic
-                : `http://127.0.0.1:8000${writer.profilePic}`
+                : `https://moeezrashidd.pythonanywhere.com/${writer.profilePic}`
               : `https://api.dicebear.com/7.x/avataaars/svg?seed=${writer.username?.username || 'user'}`
           }
           alt={`${writer.username?.name}'s avatar`}

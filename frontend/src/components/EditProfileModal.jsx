@@ -69,7 +69,7 @@ const EditProfileModal = ({ isOpen, onClose, account, onSuccess }) => {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/update_profile/${account.username.id}/`, {
+      const response = await fetch(`https://moeezrashidd.pythonanywhere.com/update_profile/${account.username.id}/`, {
         method: 'PUT',
         body: data,
         // Don't set Content-Type header manually when sending FormData, fetch will set it with boundary

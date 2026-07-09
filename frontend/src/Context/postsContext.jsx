@@ -11,7 +11,7 @@ export const PostProvider = ({ children }) => {
     useEffect(() => {
         async function getdata() {
             try {
-                const posts = await axios.get("http://127.0.0.1:8000/posts/")
+                const posts = await axios.get("https://moeezrashidd.pythonanywhere.com/posts/")
                 setPostData(posts.data)
             } catch (error) {
                 setError(error)

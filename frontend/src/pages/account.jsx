@@ -34,7 +34,7 @@ const Account = () => {
     const fetchFollowStatus = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/check_follow_status/?actor_id=${currentUser.id}&target_id=${targetId}`
+          `https://moeezrashidd.pythonanywhere.com/check_follow_status/?actor_id=${currentUser.id}&target_id=${targetId}`
         )
         if (response.ok) {
           const data = await response.json()
@@ -65,7 +65,7 @@ const Account = () => {
     setModalUsers([])
     setModalOpen(true)
     try {
-      const response = await fetch(`http://127.0.0.1:8000/followers/${userId}/`)
+      const response = await fetch(`https://moeezrashidd.pythonanywhere.com/followers/${userId}/`)
       if (response.ok) {
         const data = await response.json()
         setModalUsers(data)
@@ -80,7 +80,7 @@ const Account = () => {
     setModalUsers([])
     setModalOpen(true)
     try {
-      const response = await fetch(`http://127.0.0.1:8000/following/${userId}/`)
+      const response = await fetch(`https://moeezrashidd.pythonanywhere.com/following/${userId}/`)
       if (response.ok) {
         const data = await response.json()
         setModalUsers(data)
@@ -107,7 +107,7 @@ const Account = () => {
     }
 
     const actor_id = currentUser.id
-    const endpoint = isFollowing ? 'http://127.0.0.1:8000/unfollow/' : 'http://127.0.0.1:8000/follow/'
+    const endpoint = isFollowing ? 'https://moeezrashidd.pythonanywhere.com/unfollow/' : 'https://moeezrashidd.pythonanywhere.com/follow/'
 
     const previous = isFollowing
     setIsTogglingFollow(true)
