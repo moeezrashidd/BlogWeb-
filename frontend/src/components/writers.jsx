@@ -86,7 +86,7 @@ export const WritersCard = ({ writer }) => {
       if (!currentUser || !writer.username?.id) return;
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/check_follow_status/?actor_id=${currentUser.id}&target_id=${writer.username.id}`
+          `https://moeezrashidd.pythonanywhere.com/check_follow_status/?actor_id=${currentUser.id}&target_id=${writer.username.id}`
         );
         if (response.ok) {
           const data = await response.json();
