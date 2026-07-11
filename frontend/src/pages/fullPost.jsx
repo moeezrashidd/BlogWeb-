@@ -5,6 +5,7 @@ import Posts from "./posts";
 import { userContext } from "../Context/userContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import LexicalRenderer from "../components/LexicalRenderer";
+
 const FullPost = () => {
   const{postData} = useContext(postContext)
   const { id } = useParams();
@@ -80,6 +81,14 @@ const FullPost = () => {
     }
   };
 
+  // Helper: get image URL from images array returned by API
+  const getPostImageUrl = (images) => {
+    if (!images || images.length === 0) return "/placeholder.jpg"; // adjust placeholder path if needed
+    const img = images[0]?.image;
+    if (!img) return "/placeholder.jpg";
+    return img.startsWith("http") ? img : `https://moeezrashidd.pythonanywhere.com${img}`;
+  };
+
   return (
     <>
       {Post.map((item, index) => (
@@ -105,7 +114,7 @@ const FullPost = () => {
           </div>
 
           <img
-            src={item.images.image}
+            src={getPostImageUrl(item.images)}
             alt="Photo of Post"
             className="w-full rounded-xl shadow-md object-cover xl:h-[70vh]"
           />
