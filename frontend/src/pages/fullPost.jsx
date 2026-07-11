@@ -105,7 +105,7 @@ const FullPost = () => {
           </div>
 
           <img
-            src={`${item.images.image}`}
+            src={item.images.image}
             alt="Photo of Post"
             className="w-full rounded-xl shadow-md object-cover xl:h-[70vh]"
           />
