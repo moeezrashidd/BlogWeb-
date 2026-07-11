@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.hashers import check_password, make_password
 
 from .models import Users, Profiles, Posts, PostUserLike, PostImage
 from .serializer import UserSerializer, PostsSerializer, ProfilesSerializer
@@ -115,9 +116,19 @@ def login_view(request):
 
     try:
         user = Users.objects.get(email=email)
-        if user.password == password:
+
+        # Check against hashed password
+        if user.password and check_password(password, user.password):
             serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Backward compatibility: if stored password was plaintext, re-hash it on successful login
+        if user.password == password:
+            user.password = make_password(password)
+            user.save(update_fields=["password"])
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
     except Users.DoesNotExist:
         return Response(
