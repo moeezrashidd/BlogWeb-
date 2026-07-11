@@ -82,14 +82,14 @@ const Navbar = () => {
 
         <div className="searchAndSignin flex justify-center items-center gap-1 ">
 
-          <span className='p-1 px-2 font-semibold hover:bg-blue-600  border-2 border-blue-600 hover:text-white text-blue-600  text-2xl cursor-pointer rounded  text justify-center items-center sm:h[...']
+          <span className='p-1 px-2 font-semibold hover:bg-blue-600  border-2 border-blue-600 hover:text-white text-blue-600  text-2xl cursor-pointer rounded  text justify-center items-center sm:hidden'
             onClick={() => {
               setToggleMenu(!toggleMenu)
               { toggleSearch ? setToggleSearch(!toggleSearch) : setToggleSearch(toggleSearch) }
 
             }}>{toggleMenu ? <FaLinesLeaning /> : <IoReorderThreeSharp />}</span>
 
-          <span className='p-1 px-2  hover:bg-blue-600  border-2 border-blue-600 hover:text-white text-blue-600  text-2xl  cursor-pointer rounded  text justify-center font-semibold items-center sm[...']
+          <span className='p-1 px-2  hover:bg-blue-600  border-2 border-blue-600 hover:text-white text-blue-600  text-2xl  cursor-pointer rounded  text justify-center font-semibold items-center sm:hidden'
             onClick={() => {
               { toggleMenu ? setToggleMenu(!toggleMenu) : setToggleMenu(toggleMenu) }
               setToggleSearch(!toggleSearch)
@@ -98,7 +98,7 @@ const Navbar = () => {
 
           {currentUser ? (
             <div className="flex justify-center items-center gap-3 pl-2">
-              <Link to="/addPost" title="Add New Post" className="flex justify-center items-center bg-blue-100 hover:bg-blue-200 text-blue-600 p-2 rounded-full transition shadow-sm cursor-pointer">
+              <Link to="/addPost" title="Add New Post" className="hidden sm:flex justify-center items-center bg-blue-100 hover:bg-blue-200 text-blue-600 p-2 rounded-full transition shadow-sm cursor-pointer">
                 <Plus size={22} className="stroke-2" />
               </Link>
               <Link to={`/account/${currentUser.id}/${currentUser.username}`}>
@@ -108,7 +108,7 @@ const Navbar = () => {
               </Link>
 
               {/* Sign out button */}
-              <button onClick={handleSignOut} className="ml-2 px-3 py-1 border-2 border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition">
+              <button onClick={handleSignOut} className="hidden sm:block ml-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 border border-gray-300 hover:border-red-500 rounded-lg transition-all duration-200 shadow-sm bg-white hover:bg-red-50 active:scale-95">
                 Sign Out
               </button>
             </div>
@@ -123,8 +123,7 @@ const Navbar = () => {
 
       {toggleMenu && (
         <motion.div
-          className="menu flex justify-between flex-col gap-2 h-48 px-5 py-3 bg-white border-2 border-blue-600 sm:hidden z-50 w-32 absolute
-     right-12 "
+          className="menu flex justify-between flex-col gap-2 px-5 py-3 bg-white border-2 border-blue-600 sm:hidden z-50 w-40 absolute right-4 top-16 rounded-xl shadow-lg"
           initial={{ opacity: 0, y: -44 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
@@ -133,11 +132,37 @@ const Navbar = () => {
           {menuList.map((item, i) => (
             <span
               key={i}
-              className="text-base font-medium cursor-pointer  hover:text-blue-600 active:text-blue-600 border-b-2 border-gray-50 hover:border-blue-600"
+              className="text-base font-medium cursor-pointer  hover:text-blue-600 active:text-blue-600 border-b-2 border-gray-50 hover:border-blue-600 py-1"
             >
-              <Link to={item.url}>{item.label}</Link>
+              <Link to={item.url} onClick={() => setToggleMenu(false)}>{item.label}</Link>
             </span>
           ))}
+          {currentUser ? (
+            <>
+              <hr className="border-gray-200 my-1" />
+              <span className="text-base font-medium cursor-pointer hover:text-blue-600 active:text-blue-600 border-b-2 border-gray-50 hover:border-blue-600 py-1">
+                <Link to="/addPost" onClick={() => setToggleMenu(false)} className="flex items-center gap-1">
+                  <Plus size={16} /> Add Post
+                </Link>
+              </span>
+              <span 
+                onClick={() => {
+                  setToggleMenu(false);
+                  handleSignOut();
+                }}
+                className="text-base font-semibold cursor-pointer text-red-500 hover:text-red-700 py-1 mt-1 border-t border-red-100"
+              >
+                Sign Out
+              </span>
+            </>
+          ) : (
+            <>
+              <hr className="border-gray-200 my-1" />
+              <span className="text-base font-medium cursor-pointer hover:text-blue-600 active:text-blue-600 border-b-2 border-gray-50 hover:border-blue-600 py-1">
+                <Link to="/signIn" onClick={() => setToggleMenu(false)}>Sign In</Link>
+              </span>
+            </>
+          )}
         </motion.div>)}
 
       {toggleSearch && (<motion.div className="search flex justify-center items-center w-[93%] border-2 z-50 hover:border-blue-600 rounded-3xl sm:hidden absolute"

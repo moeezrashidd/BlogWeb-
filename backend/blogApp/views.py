@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth import logout as django_logout
+from django.contrib.auth.signals import user_logged_in
 
 from .models import Users, Profiles, Posts, PostUserLike, PostImage
 from .serializer import UserSerializer, PostsSerializer, ProfilesSerializer
@@ -119,6 +121,7 @@ def login_view(request):
 
         # Check against hashed password
         if user.password and check_password(password, user.password):
+            user_logged_in.send(sender=Users, instance=user, request=request)
             serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -126,6 +129,7 @@ def login_view(request):
         if user.password == password:
             user.password = make_password(password)
             user.save(update_fields=["password"])
+            user_logged_in.send(sender=Users, instance=user, request=request)
             serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -141,12 +145,10 @@ def login_view(request):
 def logout_view(request):
     """
     Logout endpoint.
-    - If Django sessions are enabled this will flush session data.
-    - For the project's current simple auth (frontend stores loggedInUserId), this returns 200 OK.
+    Uses Django's built-in logout to clear cookies and flush session.
     """
     try:
-        if hasattr(request, "session"):
-            request.session.flush()
+        django_logout(request)
         return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
