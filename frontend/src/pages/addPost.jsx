@@ -23,7 +23,9 @@ const AddPost = () => {
     existingImages: [],
   });
 
-  const [loading, setLoading] = useState(isEditMode); // only show loader in edit mode
+  const [loading, setLoading] = useState(isEditMode);
+  // contentLoaded flips true once we have the post content — used to key the editor
+  const [contentLoaded, setContentLoaded] = useState(false);
 
   /* ──────────────────────────────────────────
      In Edit Mode: fetch existing post details
@@ -63,6 +65,7 @@ const AddPost = () => {
           imagePreviews: [],
           existingImages: post.images || [],
         });
+        setContentLoaded(true);
       } catch (err) {
         console.error("Error fetching post:", err);
       } finally {
@@ -227,7 +230,14 @@ const AddPost = () => {
           <label className="block text-gray-700 font-semibold mb-2">
             Post Content
           </label>
-          <TextEditor value={formData.content} onChange={handleContentChange} />
+          {/* key forces full re-mount once edit content has loaded so Lexical
+              picks up initialContent instead of starting blank */}
+          <TextEditor
+            key={isEditMode ? `edit-${id}-${contentLoaded}` : 'new'}
+            initialContent={isEditMode && contentLoaded ? formData.content : undefined}
+            value={formData.content}
+            onChange={handleContentChange}
+          />
         </div>
 
         {/* Category */}
