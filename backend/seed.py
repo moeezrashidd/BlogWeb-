@@ -1,5 +1,4 @@
 import os
-# pyrefly: ignore [missing-import]
 import django
 from unittest.mock import patch
 
@@ -8,7 +7,6 @@ django.setup()
 
 from blogApp.models import Users, Profiles, Posts
 
-# Mock send_mail to prevent SMTP hangs
 with patch('blogApp.signals.send_mail') as mock_send_mail:
     users_data = [
         {'name': 'Alice Smith', 'username': 'alicesmith', 'email': 'alice@example.com', 'password': 'password123', 'bio': 'I love writing about AI and future tech.', 'cat': 'Technology'},
@@ -18,20 +16,18 @@ with patch('blogApp.signals.send_mail') as mock_send_mail:
 
     for ud in users_data:
         user, created = Users.objects.get_or_create(
-            username=ud['username'], 
+            username=ud['username'],
             defaults={'name': ud['name'], 'email': ud['email'], 'password': ud['password']}
         )
         if created:
             print(f"Created user {user.username}")
-        
-        # Update profile
+
         profile = Profiles.objects.get(username=user)
         profile.bio = ud['bio']
         profile.disc = 'Regular Contributor'
         profile.category = ud['cat']
         profile.save()
 
-        # Create posts
         Posts.objects.get_or_create(
             username=user,
             title=f"First post by {user.name}",

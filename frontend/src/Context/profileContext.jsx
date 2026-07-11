@@ -50,7 +50,6 @@ export const ProfileProvider = ({ children }) => {
         return prev
     }
 
-
     useEffect(() => {
         ;(async () => {
             setLoading(true)

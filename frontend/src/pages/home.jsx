@@ -7,8 +7,6 @@ import Writers from '../components/writers'
 import SignUpBar from '../components/signUpBar'
 import { postContext } from '../Context/postsContext'
 
-
-
 const Home = () => {
 
     const { postData } = useContext(postContext)
@@ -28,9 +26,7 @@ const Home = () => {
 
         return () => window.removeEventListener("resize", changeItemCount)
 
-
     }, [])
-
 
     return (
         <>
@@ -50,19 +46,12 @@ const Home = () => {
                   ))}
             </div>
 
-
-
             <SignUpBar />
             <Footer />
-
-
-
-
 
         </>
     )
 }
 
 export default Home
-
 

@@ -5,7 +5,7 @@ const About = () => {
   return (
     <div className="flex justify-center items-start px-4 py-10 sm:py-16 bg-gray-50 min-h-screen">
       <div className="max-w-4xl w-full bg-white shadow-2xl rounded-2xl border-2 border-gray-200 hover:border-blue-500 transition-colors duration-300 p-8 sm:p-12">
-        {/* Heading */}
+        
         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 text-center mb-4">
           About <span className="text-blue-600">MR-Blog</span>
         </h1>
@@ -13,7 +13,7 @@ const About = () => {
           Sharing knowledge, stories, and inspiration with the world 🌍
         </p>
 
-        {/* Content */}
+        
         <div className="space-y-6 text-gray-700 leading-relaxed text-base sm:text-lg">
           <p>
             Welcome to{" "}
@@ -46,7 +46,7 @@ const About = () => {
           </p>
         </div>
 
-        {/* Portfolio Link */}
+        
         <div className="flex justify-center items-center gap-2 font-medium mt-10">
           <span className="text-gray-700">Visit the developer’s portfolio →</span>
           <a
@@ -59,7 +59,7 @@ const About = () => {
           </a>
         </div>
 
-        {/* Call to Action */}
+        
         <div className="mt-12 flex justify-center">
           <Link
             to="/contact"
@@ -74,5 +74,4 @@ const About = () => {
 };
 
 export default About;
-
 

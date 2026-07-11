@@ -109,8 +109,8 @@ const OnChangePlugin = ({ onChange }) => {
 };
 
 export default function TextEditor({ value, onChange, initialContent }) {
-  // initialContent: a Lexical JSON string used to pre-populate the editor on mount.
-  // We parse it here and pass it as editorState so Lexical loads it immediately.
+  
+  
   const initialConfig = {
     namespace: 'BlogEditor',
     theme,
@@ -130,7 +130,7 @@ export default function TextEditor({ value, onChange, initialContent }) {
       AutoLinkNode,
       LinkNode
     ],
-    // editorState accepts a JSON string; Lexical will deserialise it on mount
+    
     editorState: initialContent || null,
   };
 

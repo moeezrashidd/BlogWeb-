@@ -24,9 +24,6 @@ export const PostProvider = ({ children }) => {
     }, [])
     console.log(postData)
 
-
-
-
     return (
         <postContext.Provider value={{ postData, setPostData, Error, Loading }} >
             {children}

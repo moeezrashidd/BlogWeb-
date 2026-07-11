@@ -5,7 +5,7 @@ const Contact = () => {
     <div className="flex justify-center items-start px-4 py-10 sm:py-16 bg-gray-50 min-h-screen">
       <div className="max-w-3xl w-full bg-white shadow-xl rounded-2xl border border-gray-200 p-8 sm:p-12">
         
-        {/* Heading */}
+        
         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 text-center mb-4">
           Contact <span className="text-blue-600">Us</span>
         </h1>
@@ -13,9 +13,9 @@ const Contact = () => {
           We’d love to hear from you! Fill out the form below and we’ll get back to you soon. ✨
         </p>
 
-        {/* Form */}
+        
         <form className="space-y-6">
-          {/* Name */}
+          
           <div>
             <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
               Your Name
@@ -29,7 +29,7 @@ const Contact = () => {
             />
           </div>
 
-          {/* Email */}
+          
           <div>
             <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
               Your Email
@@ -43,7 +43,7 @@ const Contact = () => {
             />
           </div>
 
-          {/* Message */}
+          
           <div>
             <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
               Your Message
@@ -57,7 +57,7 @@ const Contact = () => {
             ></textarea>
           </div>
 
-          {/* Submit Button */}
+          
           <div className="flex justify-center">
             <button
               type="submit"
@@ -68,7 +68,7 @@ const Contact = () => {
           </div>
         </form>
 
-        {/* Extra Info */}
+        
         <div className="mt-10 text-center text-gray-600">
           <p>
             Or reach us directly at{" "}

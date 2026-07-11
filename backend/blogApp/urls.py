@@ -15,11 +15,8 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('update_profile/<int:user_id>/', views.update_profile, name='update_profile'),
 
-    # Post like/unlike
     path('check_post_like/', views.check_post_like, name='check_post_like'),
     path('like_post/', views.like_post, name='like_post'),
     path('unlike_post/', views.unlike_post, name='unlike_post'),
 ]
-
-
 

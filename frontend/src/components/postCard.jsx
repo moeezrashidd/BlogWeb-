@@ -22,7 +22,7 @@ const PostCard = ({ item }) => {
   useEffect(() => {
     if (!isReady) return;
 
-    // Cancel previous request if user switches quickly between posts.
+    
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -78,7 +78,7 @@ const PostCard = ({ item }) => {
     } catch (err) {
       console.error(err);
 
-      // If server request fails, revert optimistic UI.
+      
       setIsLiked((prev) => !prev);
       setLocalLikesCount((prev) => (isLiked ? prev + 1 : Math.max(0, prev - 1)));
     } finally {
@@ -106,7 +106,7 @@ const PostCard = ({ item }) => {
         })()}
       </p>
 
-      {/* Meta Info */}
+      
       <div className="flex flex-col gap-0.5 text-xs sm:text-sm text-gray-600">
         <p>
           <span className="font-semibold text-gray-800">Author:</span>{" "}
@@ -117,7 +117,7 @@ const PostCard = ({ item }) => {
         </p>
       </div>
 
-      {/* Read More Button */}
+      
       <Link
         to={`/post/${item.id}/${item.title}`}
         className="mt-1 sm:mt-2 w-full px-4 py-1.5 sm:py-2
@@ -126,7 +126,6 @@ const PostCard = ({ item }) => {
       >
         Read More
       </Link>
-
 
       <div className="absolute right-2 sm:right-4 top-2 sm:top-3 z-50 flex flex-col justify-center items-center gap-2">
         <span

@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { userContext } from '../Context/userContext';
 import { profileContext } from '../Context/profileContext';
 
-
 const Writers = ({ category, id, searchText }) => {
   const { Profiles, Loading } = useContext(profileContext);
   const { currentUser } = useContext(userContext);
@@ -73,14 +72,12 @@ export const WritersCard = ({ writer }) => {
   const { currentUser } = useContext(userContext);
   const { refreshProfiles, optimisticFollowUpdate } = useContext(profileContext);
 
-
   const [isFollowing, setIsFollowing] = useState(false);
   const [isTogglingFollow, setIsTogglingFollow] = useState(false);
   const navigate = useNavigate();
 
-
-  // Set initial follow state once (so after refresh it shows correct value),
-  // but DO NOT reset it on every re-render/click.
+  
+  
   useEffect(() => {
     const fetchFollowStatus = async () => {
       if (!currentUser || !writer.username?.id) return;
@@ -99,7 +96,6 @@ export const WritersCard = ({ writer }) => {
 
     fetchFollowStatus();
   }, [currentUser, writer.username?.id]);
-
 
   const handleCardClick = () => {
     navigate(`/account/${writer.username?.id}/${writer.username?.username}`);
@@ -141,10 +137,10 @@ export const WritersCard = ({ writer }) => {
         return;
       }
 
-      // Only update UI after success
+      
       setIsFollowing(!previous);
 
-      // Ensure follower/following counts update in related lists too
+      
       if (typeof refreshProfiles === 'function') {
         await refreshProfiles();
       }

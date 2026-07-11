@@ -23,7 +23,6 @@ useEffect(() => {
 
      return ()=> window.removeEventListener("resize" , changeItemCount)
 
-
 }, [])
   return (
     <div className="flex flex-col gap-6 mt-6">
@@ -41,7 +40,6 @@ useEffect(() => {
 
             }
 
-
           </div>
           <div className="flex items-center justify-center gap-4 w-full my-6">
             <span className="hidden sm:flex flex-1 border-t-2"></span>
@@ -52,7 +50,6 @@ useEffect(() => {
           </div>
         </div>
       ))}
-
 
     </div>
   )

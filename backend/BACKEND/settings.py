@@ -3,10 +3,8 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-w5xp^o*(c^5_d_=-5p6-xst+u0fumfmlew0f4ie&r46%*=57&9')
 
-# Set DEBUG False for production; you can enable via env during development
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
@@ -31,7 +29,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CORS middleware should come early
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -43,14 +41,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'BACKEND.urls'
 
-# Frontend origins (including pythonanywhere)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",
     "https://moeezrashidd.pythonanywhere.com",
 ]
 
-# If you're serving over HTTPS on pythonanywhere, include it here for CSRF
 CSRF_TRUSTED_ORIGINS = [
     "https://moeezrashidd.pythonanywhere.com",
 ]
@@ -102,11 +98,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (user uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react"; // 👁️ icons
+import { Eye, EyeOff } from "lucide-react"; 
 import axios from "axios";
 import { userContext } from "../Context/userContext";
 import API_BASE_URL from "../config";
@@ -17,7 +17,7 @@ const SignIn = () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/login/`, { email, password });
       
-      // Update global state and local storage
+      
       const user = response.data;
       setCurrentUser(user);
       localStorage.setItem("loggedInUserId", user.id);
@@ -36,7 +36,7 @@ const SignIn = () => {
   return (
     <div className="flex justify-center items-center min-h-screen px-4 ">
       <div className="w-full max-w-md bg-white shadow-lg rounded-2xl py-10 px-6 sm:px-10 border-2 hover:border-blue-500 focus:border-blue-500">
-        {/* Heading */}
+        
         <h1 className="text-4xl font-bold text-gray-800 text-center">
           Welcome  <span className="text-blue-600">Back</span>
         </h1>
@@ -44,12 +44,12 @@ const SignIn = () => {
           Sign in to continue
         </p>
 
-        {/* Form */}
+        
         <form
           onSubmit={handleSubmit}
           className="flex flex-col gap-6 mt-8"
         >
-          {/* Email Input */}
+          
           <div className="flex flex-col">
             <label
               htmlFor="email"
@@ -68,7 +68,7 @@ const SignIn = () => {
             />
           </div>
 
-          {/* Password Input with Toggle */}
+          
           <div className="flex flex-col relative">
             <label
               htmlFor="password"
@@ -94,7 +94,7 @@ const SignIn = () => {
             </button>
           </div>
 
-          {/* Sign Up Redirect */}
+          
           <p className="text-sm text-gray-600 text-center">
             Don’t have an account?{" "}
             <Link
@@ -105,7 +105,7 @@ const SignIn = () => {
             </Link>
           </p>
 
-          {/* Submit Button */}
+          
           <button
             type="submit"
             className="w-full h-12 rounded-lg bg-blue-600 text-white text-lg font-semibold shadow-md hover:bg-blue-700 active:scale-95 transition-all duration-200"
@@ -119,5 +119,4 @@ const SignIn = () => {
 };
 
 export default SignIn;
-
 

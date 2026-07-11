@@ -3,7 +3,6 @@ from django.db import transaction
 
 from blogApp.models import Users, Profiles
 
-
 class Command(BaseCommand):
     help = "Backfill missing Profiles for existing Users (one-to-one)."
 

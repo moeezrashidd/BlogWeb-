@@ -13,7 +13,7 @@ class Users(models.Model):
         blank=True
     )
 
-class Profiles(models.Model):  
+class Profiles(models.Model):
     categoryOpts =[
     ("Technology" , "Technology"),
     ("Business & Finance" ,"Business & Finance"),
@@ -34,27 +34,27 @@ class Profiles(models.Model):
     category = models.CharField(choices = categoryOpts,max_length=50)
     role = models.CharField(max_length=20, default="normal_user")
     credits = models.PositiveIntegerField(default=0)
-    username = models.OneToOneField(Users, on_delete=models.CASCADE)    
+    username = models.OneToOneField(Users, on_delete=models.CASCADE)
     followers = models.PositiveIntegerField(default= 0)
     following = models.PositiveIntegerField(default= 0)
     likes = models.PositiveIntegerField(default= 0)
     posts = models.PositiveIntegerField(default= 0)
-    
+
     def uploadPhoto(self,*args , **kwargs):
         super.save(*args , **kwargs)
-        
+
         if self.profilePic:
             image = Image.open(self.profilePic.path).convert("RGBA")
-            
+
             size = min(image.size)
-            
+
             left = (image.width - size) //2
             top = (image.height-size )//2
             right = left + size
             bottom = top +size
-            
+
             image = image.crop((left,top,right,bottom))
-            
+
             image.save(self.profilePic.path.replace(".jpg", ".png") , format="PNG")
 
 class PostUserLike(models.Model):
@@ -65,9 +65,8 @@ class PostUserLike(models.Model):
     class Meta:
         unique_together = ('user', 'post')
 
-
 class Posts(models.Model):
-    id= models.AutoField(primary_key=True)   
+    id= models.AutoField(primary_key=True)
     username = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='posts')
     title= models.CharField(max_length= 150)
     content = models.TextField()
@@ -75,13 +74,12 @@ class Posts(models.Model):
     likes = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-   
+
 class PostImage(models.Model):
     post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to="post_images/")
     created_at = models.DateTimeField(auto_now_add=True)
 
-   
 class deletionAudits(models.Model):
     obj_id= models.IntegerField()
     DeletedBy = models.CharField(max_length=200)

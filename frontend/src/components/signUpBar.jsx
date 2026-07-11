@@ -6,7 +6,7 @@ import { userContext } from "../Context/userContext";
 const SignUpBar = () => {
   const { currentUser } = useContext(userContext);
 
-  // Hide for logged-in users — they've already joined
+  
   if (currentUser) return null;
 
   return (

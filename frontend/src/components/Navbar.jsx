@@ -35,14 +35,14 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     try {
-      // Call backend logout endpoint (keeps backend in sync if needed)
+      
       await axios.post(`${API_BASE_URL}/logout/`);
     } catch (err) {
-      // ignore backend errors for sign out — still proceed to clear client state
+      
       console.warn('Logout request failed', err?.message || err);
     }
 
-    // Clear frontend auth state
+    
     localStorage.removeItem('loggedInUserId');
     setCurrentUser(null);
     alert('Signed out successfully');
@@ -57,10 +57,7 @@ const Navbar = () => {
           <span className=' lg:text-2xl xl:3xl text-xl font-semibold cursor-pointer'>MR-<span className="text-blue-600">Blog</span></span>
         </div>
 
-
-
         <div className="justify-center flex-col items-center sm:flex hidden">
-
 
           <div className="search flex justify-center items-center w-full h-1/2 border-2 hover:border-blue-600 rounded-3xl">
               
@@ -71,14 +68,12 @@ const Navbar = () => {
             <span className='px-4 py-2 text-2xl cursor-pointer rounded-r-3xl bg-white'>{SearchText.length > 0 ? <Link to={`/Search/${SearchText}`}><FcSearch /></Link> : <FcSearch />}</span>
           </div>
 
-
           <div className="menu flex justify-center items-center sm:gap-3 gap-1 lg:gap-8  ">
             {menuList.map((e, i) => {
               return <span key={i} className='sm:text-base lg:text-xl cursor-pointer hover:text-blue-600 border-b-4 border-gray-50 hover:border-blue-600 active:text-blue-600 font-semibold '><Link to={e.url}>{e.label}</Link></span>
             })}
           </div>
         </div>
-
 
         <div className="searchAndSignin flex justify-center items-center gap-1 ">
 
@@ -107,7 +102,7 @@ const Navbar = () => {
                 </div>
               </Link>
 
-              {/* Sign out button */}
+              
               <button onClick={handleSignOut} className="hidden sm:block ml-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 border border-gray-300 hover:border-red-500 rounded-lg transition-all duration-200 shadow-sm bg-white hover:bg-red-50 active:scale-95">
                 Sign Out
               </button>
@@ -119,7 +114,6 @@ const Navbar = () => {
           )}
         </div>
       </nav>
-
 
       {toggleMenu && (
         <motion.div
@@ -177,6 +171,5 @@ const Navbar = () => {
   )
 
 }
-
 
 export default Navbar

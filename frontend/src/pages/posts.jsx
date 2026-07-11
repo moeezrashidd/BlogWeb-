@@ -43,8 +43,6 @@ const Posts = ({ username, id, propCategory, searchText }) => {
     setFilteredPosts(filtered);
   }, [finalCategory, username, id, searchText ,postData])
 
-
-
   const handleShowMorePosts = () => {
     if (PostCount >= filteredPosts.length) {
       setPostCount(6)
@@ -68,9 +66,6 @@ const Posts = ({ username, id, propCategory, searchText }) => {
   }
 console.log(postData)
 
-
-
-
   useEffect(() => {
     if (filteredPosts.length > 6) {
       const TempPosts = filteredPosts.slice(0, PostCount)
@@ -81,26 +76,19 @@ console.log(postData)
     }
   }, [PostCount, filteredPosts])
 
-
-
-
-
   return (
     <>
       <div className="flex items-center justify-center gap-4 w-full my-9">
 
         <span className="hidden sm:flex flex-1 border-t-2"></span>
 
-
         <h1 className='text-4xl sm:text-5xl font-extrabold text-gray-900 text-center mb-4 '> 
           { decodedCategory || username ? username ? "": `${decodedCategory}` : "Related"} 
           <span className='text-blue-600'> Posts</span>
         </h1>
 
-
         <span className="hidden sm:flex flex-1 border-t-2"></span>
       </div>
-
 
       <div className="parent flex flex-wrap justify-center gap-1 sm:gap-4 mt-4">
         {Posts.length >= 1 ?
@@ -116,8 +104,6 @@ console.log(postData)
       <div className="flex items-center justify-center gap-4 w-full my-9">
 
         <span className="hidden sm:flex flex-1 border-t-2"></span>
-
-
 
         {filteredPosts.length > 6 && (
           <>
@@ -140,10 +126,8 @@ console.log(postData)
           </>
         )}
 
-
         <span className="hidden sm:flex flex-1 border-t-2"></span>
       </div >
-
 
     </>
   )

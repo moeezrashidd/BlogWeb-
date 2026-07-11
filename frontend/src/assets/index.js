@@ -5,8 +5,6 @@ import tech from "./slider/tech.jpg"
 import travling from "./slider/travling.jpg"
 import workout from "./slider/workout.jpg"
 
-
-
 export{
     logo ,bussiness ,food ,tech ,travling ,workout
 }

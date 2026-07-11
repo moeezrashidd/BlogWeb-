@@ -58,19 +58,18 @@ const SignUp = () => {
       })
     }
 
-
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen px-4">
       <div className="w-full max-w-md bg-white shadow-xl rounded-2xl py-10 px-6 sm:px-10 border-2 hover:border-blue-500 focus:border-blue-500">
-        {/* Heading */}
+        
         <h1 className="text-4xl font-bold text-gray-800 text-center">Create <span className="text-blue-600">Account</span></h1>
         <p className="text-gray-500 text-center mt-2">Join us today!</p>
 
-        {/* Form */}
+        
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-8">
-          {/* Name */}
+          
           <div className="flex flex-col">
             <label htmlFor="name" className="text-sm font-semibold text-gray-700 mb-1">
               Name
@@ -87,7 +86,7 @@ const SignUp = () => {
             />
           </div>
 
-          {/* Username */}
+          
           <div className="flex flex-col">
             <label htmlFor="username" className="text-sm font-semibold text-gray-700 mb-1">
               Username
@@ -104,7 +103,7 @@ const SignUp = () => {
             />
           </div>
 
-          {/* Email */}
+          
           <div className="flex flex-col">
             <label htmlFor="email" className="text-sm font-semibold text-gray-700 mb-1">
               Email
@@ -121,7 +120,7 @@ const SignUp = () => {
             />
           </div>
 
-          {/* Password */}
+          
           <div className="flex flex-col relative">
             <label htmlFor="password" className="text-sm font-semibold text-gray-700 mb-1">
               Password
@@ -145,7 +144,7 @@ const SignUp = () => {
             </button>
           </div>
 
-          {/* Confirm Password */}
+          
           <div className="flex flex-col relative">
             
             <button
@@ -157,7 +156,7 @@ const SignUp = () => {
             </button>
           </div>
 
-          {/* Sign In Redirect */}
+          
           <p className="text-sm text-gray-600 text-center">
             Already have an account?{" "}
             <Link to="/signIn" className="text-blue-600 font-semibold hover:underline">
@@ -165,7 +164,7 @@ const SignUp = () => {
             </Link>
           </p>
 
-          {/* Submit */}
+          
           <button
             type="submit"
             className="w-full h-12 rounded-lg bg-blue-600 text-white text-lg font-semibold shadow-md hover:bg-blue-700 active:scale-95 transition-all duration-200"

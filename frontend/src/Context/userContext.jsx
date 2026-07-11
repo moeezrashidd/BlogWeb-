@@ -2,7 +2,6 @@ import axios from "axios";
 import { createContext, useState, useEffect } from "react";
 import API_BASE_URL from "../config";
 
-
 export const userContext = createContext()
 
 export const UserProvider = ({ children }) => {
@@ -18,7 +17,7 @@ export const UserProvider = ({ children }) => {
                 console.log(response)
                 setUserData(response.data)
                 
-                // Initialize currentUser from localStorage if present
+                
                 const storedUserId = localStorage.getItem("loggedInUserId")
                 if (storedUserId) {
                     const activeUser = response.data.find(u => u.id === parseInt(storedUserId))
@@ -35,7 +34,6 @@ export const UserProvider = ({ children }) => {
         }
 
         getdata()
-
 
     }, [])
 

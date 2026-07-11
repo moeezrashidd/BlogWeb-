@@ -81,9 +81,9 @@ const FullPost = () => {
     }
   };
 
-  // Helper: get image URL from images array returned by API
+  
   const getPostImageUrl = (images) => {
-    if (!images || images.length === 0) return "/placeholder.jpg"; // adjust placeholder path if needed
+    if (!images || images.length === 0) return "/placeholder.jpg"; 
     const img = images[0]?.image;
     if (!img) return "/placeholder.jpg";
     return img.startsWith("http") ? img : `https://moeezrashidd.pythonanywhere.com${img}`;

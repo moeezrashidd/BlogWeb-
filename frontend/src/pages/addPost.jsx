@@ -7,7 +7,7 @@ import { userContext } from "../Context/userContext";
 import API_BASE_URL from "../config";
 
 const AddPost = () => {
-  const { id } = useParams();           // present only on /editPost/:id
+  const { id } = useParams();           
   const isEditMode = Boolean(id);
   const navigate = useNavigate();
 
@@ -24,21 +24,19 @@ const AddPost = () => {
   });
 
   const [loading, setLoading] = useState(isEditMode);
-  // contentLoaded flips true once we have the post content — used to key the editor
+  
   const [contentLoaded, setContentLoaded] = useState(false);
 
-  /* ──────────────────────────────────────────
-     In Edit Mode: fetch existing post details
-  ────────────────────────────────────────── */
+  
   useEffect(() => {
     if (!isEditMode) return;
 
     const fetchPost = async () => {
       try {
-        // Try local context cache first for speed
+        
         let post = postData.find((p) => p.id === parseInt(id));
 
-        // Always fetch from API to get the absolute latest
+        
         const res = await fetch(`${API_BASE_URL}/posts/${id}/`);
         if (res.ok) post = await res.json();
 
@@ -48,7 +46,7 @@ const AddPost = () => {
           return;
         }
 
-        // Verify ownership
+        
         const authorId = post.author?.id ?? post.username;
         const loggedInUserId = localStorage.getItem("loggedInUserId");
         if (loggedInUserId && parseInt(loggedInUserId) !== parseInt(authorId)) {
@@ -74,11 +72,9 @@ const AddPost = () => {
     };
 
     fetchPost();
-  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [id]); 
 
-  /* ──────────────────────────────────────────
-     Handlers
-  ────────────────────────────────────────── */
+  
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "images") {
@@ -105,9 +101,7 @@ const AddPost = () => {
     setFormData((prev) => ({ ...prev, images: imgs, imagePreviews: prevs }));
   };
 
-  /* ──────────────────────────────────────────
-     Submit: create OR update
-  ────────────────────────────────────────── */
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -136,7 +130,7 @@ const AddPost = () => {
         const result = await response.json();
 
         if (isEditMode) {
-          // Replace the updated post in global context
+          
           if (setPostData) {
             setPostData((prev) =>
               prev.map((p) => (p.id === parseInt(id) ? result : p))
@@ -145,11 +139,11 @@ const AddPost = () => {
           alert("Post updated successfully!");
           navigate(`/post/${id}/${encodeURIComponent(formData.title)}`);
         } else {
-          // Add new post to context list
+          
           if (setPostData) {
             setPostData((prev) => [result, ...prev]);
           }
-          // Reset form for a new post
+          
           setFormData({
             title: "",
             content: "",
@@ -171,16 +165,14 @@ const AddPost = () => {
     }
   };
 
-  // Helper: resolve existing image URLs
+  
   const getImgUrl = (imgObj) => {
     const src = imgObj?.image;
     if (!src) return "";
     return src.startsWith("http") ? src : `${API_BASE_URL}${src}`;
   };
 
-  /* ──────────────────────────────────────────
-     Render
-  ────────────────────────────────────────── */
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -209,7 +201,7 @@ const AddPost = () => {
         onSubmit={handleSubmit}
         className="bg-white w-full rounded-2xl p-8 space-y-8 border-2 border-gray-200 shadow-xl hover:border-blue-600 transition-colors"
       >
-        {/* Title */}
+        
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
             Post Title
@@ -225,13 +217,12 @@ const AddPost = () => {
           />
         </div>
 
-        {/* Content */}
+        
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
             Post Content
           </label>
-          {/* key forces full re-mount once edit content has loaded so Lexical
-              picks up initialContent instead of starting blank */}
+          
           <TextEditor
             key={isEditMode ? `edit-${id}-${contentLoaded}` : 'new'}
             initialContent={isEditMode && contentLoaded ? formData.content : undefined}
@@ -240,7 +231,7 @@ const AddPost = () => {
           />
         </div>
 
-        {/* Category */}
+        
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
             Category
@@ -259,7 +250,7 @@ const AddPost = () => {
           </select>
         </div>
 
-        {/* Current images (edit mode only) */}
+        
         {isEditMode && formData.existingImages.length > 0 && (
           <div>
             <label className="block text-gray-700 font-semibold mb-2">
@@ -281,7 +272,7 @@ const AddPost = () => {
           </div>
         )}
 
-        {/* Image Upload */}
+        
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
             {isEditMode ? "Upload New Images (Optional)" : "Upload Images"}
@@ -318,7 +309,7 @@ const AddPost = () => {
           </div>
         </div>
 
-        {/* Buttons */}
+        
         <div className="flex justify-center gap-4">
           {isEditMode && (
             <button

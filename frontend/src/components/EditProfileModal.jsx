@@ -72,7 +72,7 @@ const EditProfileModal = ({ isOpen, onClose, account, onSuccess }) => {
       const response = await fetch(`https://moeezrashidd.pythonanywhere.com/update_profile/${account.username.id}/`, {
         method: 'PUT',
         body: data,
-        // Don't set Content-Type header manually when sending FormData, fetch will set it with boundary
+        
       });
 
       if (response.ok) {

@@ -7,7 +7,6 @@ import os
 from django_currentuser.middleware import get_current_user
 from django.forms.models import model_to_dict
 
-
 @receiver(post_save , sender=Users)
 def welcomeMail(sender,instance , created ,**kwargs):
     if created:
@@ -18,7 +17,6 @@ def welcomeMail(sender,instance , created ,**kwargs):
             [instance.email],
             fail_silently=True
         )
-        
 
 @receiver(post_save , sender= Users)
 def auto_Create_Profile(sender , instance , created ,**kwargs):
@@ -34,26 +32,25 @@ def accountCreatMail(sender , instance , created ,**kwargs):
             "no-reply@MR-blogTeam.com",
             [instance.email],
             fail_silently=True,
-            
+
         )
-   
+
 @receiver(post_save , sender=Users)
 def addFreeBouns(sender , instance , created ,**kwargs):
     if created:
         profile, created_profile = Profiles.objects.get_or_create(username=instance, defaults={"category": "Technology", "disc": ""})
-        
+
         profile.credits = 10
         profile.save(update_fields=["credits"])
-        
+
         send_mail(
             "Bonus Just Landed",
             "Congratulations! Your email has been successfully confirmed, and as a reward, 10 credits have been added to your account. You can now use these credits to enjoy more features and benefits on our platform.",
             "no-reply@MR-blogTeam.com",
             [instance.email],
             fail_silently=True,
-            
-        )
 
+        )
 
 @receiver(user_logged_in , sender=Users)
 def sendLogInMsg(instance  , sender ,**Kwargs):
@@ -64,8 +61,7 @@ def sendLogInMsg(instance  , sender ,**Kwargs):
         [instance.email],
         fail_silently=True,
     )
-       
-                    
+
 @receiver(pre_save , sender=Profiles)
 def updateProfilePhoto(sender , instance , **kwargs):
     if not instance.pk:
@@ -74,15 +70,14 @@ def updateProfilePhoto(sender , instance , **kwargs):
         oldProfile = Profiles.objects.get(pk = instance.pk)
     except Profiles.DoesNotExist:
         return
-    
+
     oldImg = oldProfile.profilePic
     newImg = instance.profilePic
-    
+
     if oldImg and oldImg != newImg:
         if os.path.isfile(oldImg.path):
             os.remove(oldImg.path)
-            
-            
+
 @receiver(post_save , sender=Profiles)
 def notifyUpdatingProfile(sender , instance , **kwargs):
     email = instance.username.email if hasattr(instance, 'username') and instance.username else None
@@ -92,17 +87,17 @@ def notifyUpdatingProfile(sender , instance , **kwargs):
             "your profile  on MR-blog is updated successfully...",
             "no-reply@MR-blogTeam.com",
             [email],
-            fail_silently=True,   
-        )                    
-    
+            fail_silently=True,
+        )
+
 @receiver(post_save ,sender=Posts)
 def incPostCount(sender ,instance ,created , **kwargs):
     if created:
         profile = instance.username.profiles
         profile.posts += 1
-        
+
         profile.save(update_fields=["posts"])
-        
+
         author = instance.username
         followers = author.followers.all()
         for follower in followers:
@@ -113,17 +108,17 @@ def incPostCount(sender ,instance ,created , **kwargs):
                 [follower.email],
                 fail_silently=True
             )
-                                
+
 @receiver(pre_delete , sender=Users)
-@receiver(pre_delete , sender=Posts)     
-@receiver(pre_delete , sender = Profiles)  
+@receiver(pre_delete , sender=Posts)
+@receiver(pre_delete , sender = Profiles)
 def deleteFilesOnDelete(sender, instance, **kwargs):
     file_field = getattr(instance, "file", None)
 
     if file_field and file_field.name:
         if os.path.isfile(file_field.path):
             os.remove(file_field.path)
-                    
+
 @receiver(pre_delete , sender=Users)
 @receiver(pre_delete , sender=Profiles)
 @receiver(pre_delete , sender=Posts)
@@ -133,11 +128,9 @@ def creatingAudit(sender, instance ,**kwargs):
         obj_id = instance.id,
         DeletedBy = get_current_user(),
         data = model_to_dict(instance)
-        
+
     )
-    
-                    
-                    
+
 @receiver(pre_delete , sender=Users)
 @receiver(pre_delete , sender=Profiles)
 @receiver(pre_delete , sender=Posts)
@@ -147,7 +140,7 @@ def msgOfdeletion(sender, instance , ** kwargs):
         email = instance.email
     elif hasattr(instance, 'username') and instance.username:
         email = instance.username.email
-        
+
     if email:
         send_mail(
             f'Delete {sender.__name__}',
@@ -156,7 +149,7 @@ def msgOfdeletion(sender, instance , ** kwargs):
             [email],
             fail_silently=True,
         )
-    
+
 @receiver(m2m_changed, sender=Users.followers.through)
 def update_follow_counts(sender, instance, action, pk_set, **kwargs):
     if action in ["post_add", "post_remove", "post_clear"]:
@@ -166,7 +159,7 @@ def update_follow_counts(sender, instance, action, pk_set, **kwargs):
             target_profile.save(update_fields=['followers'])
         except Profiles.DoesNotExist:
             pass
-            
+
         if pk_set:
             for actor_id in pk_set:
                 try:
@@ -174,7 +167,7 @@ def update_follow_counts(sender, instance, action, pk_set, **kwargs):
                     actor_profile = actor.profiles
                     actor_profile.following = actor.following.count()
                     actor_profile.save(update_fields=['following'])
-                    
+
                     if action == "post_add":
                         send_mail(
                             'New Follower!',

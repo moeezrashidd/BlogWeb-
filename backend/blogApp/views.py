@@ -8,7 +8,6 @@ from django.contrib.auth.signals import user_logged_in
 from .models import Users, Profiles, Posts, PostUserLike, PostImage
 from .serializer import UserSerializer, PostsSerializer, ProfilesSerializer
 
-
 @api_view(["GET", "POST"])
 def users_view(request):
     if request.method == "GET":
@@ -21,7 +20,6 @@ def users_view(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(["GET", "POST"])
 def posts_view(request):
@@ -39,7 +37,6 @@ def posts_view(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(["GET", "POST"])
 def profiles_view(request):
     if request.method == "GET":
@@ -52,7 +49,6 @@ def profiles_view(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(["POST"])
 def follow_user(request):
@@ -80,7 +76,6 @@ def follow_user(request):
     target.followers.add(actor)
     return Response({"message": "Successfully followed"}, status=status.HTTP_200_OK)
 
-
 @api_view(["POST"])
 def unfollow_user(request):
     actor_id = request.data.get("actor_id")
@@ -104,7 +99,6 @@ def unfollow_user(request):
         status=status.HTTP_200_OK,
     )
 
-
 @api_view(["POST"])
 def login_view(request):
     email = request.data.get("email")
@@ -119,13 +113,11 @@ def login_view(request):
     try:
         user = Users.objects.get(email=email)
 
-        # Check against hashed password
         if user.password and check_password(password, user.password):
             user_logged_in.send(sender=Users, instance=user, request=request)
             serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # Backward compatibility: if stored password was plaintext, re-hash it on successful login
         if user.password == password:
             user.password = make_password(password)
             user.save(update_fields=["password"])
@@ -140,7 +132,6 @@ def login_view(request):
             status=status.HTTP_404_NOT_FOUND,
         )
 
-
 @api_view(["POST"])
 def logout_view(request):
     """
@@ -152,7 +143,6 @@ def logout_view(request):
         return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(["GET"])
 def check_follow_status(request):
@@ -173,7 +163,6 @@ def check_follow_status(request):
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
 @api_view(["GET"])
 def get_user_followers(request, user_id):
     try:
@@ -185,7 +174,6 @@ def get_user_followers(request, user_id):
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
 @api_view(["GET"])
 def get_user_following(request, user_id):
     try:
@@ -196,7 +184,6 @@ def get_user_following(request, user_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 @api_view(["PUT"])
 def update_profile(request, user_id):
@@ -218,8 +205,6 @@ def update_profile(request, user_id):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
 @api_view(["GET"])
 def check_post_like(request):
     actor_id = request.query_params.get("actor_id")
@@ -236,7 +221,6 @@ def check_post_like(request):
         return Response({"is_liked": liked}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(["POST"])
 def like_post(request):
@@ -257,7 +241,7 @@ def like_post(request):
         if created:
             post.likes = post.likes + 1
             post.save(update_fields=["likes"])
-            
+
             try:
                 author_profile = Profiles.objects.get(username=post.username)
                 author_profile.likes += 1
@@ -270,7 +254,6 @@ def like_post(request):
         return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 @api_view(["POST"])
 def unlike_post(request):
@@ -291,7 +274,7 @@ def unlike_post(request):
         if deleted:
             post.likes = max(0, post.likes - 1)
             post.save(update_fields=["likes"])
-            
+
             try:
                 author_profile = Profiles.objects.get(username=post.username)
                 author_profile.likes = max(0, author_profile.likes - 1)
@@ -304,7 +287,6 @@ def unlike_post(request):
         return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 @api_view(["GET", "PUT", "PATCH", "DELETE"])
 def post_detail_view(request, post_id):
@@ -323,7 +305,6 @@ def post_detail_view(request, post_id):
             post = serializer.save()
             images = request.FILES.getlist('images')
             if images:
-                # If new images are uploaded, delete existing post images and replace them
                 PostImage.objects.filter(post=post).delete()
                 for image in images:
                     PostImage.objects.create(post=post, image=image)
@@ -333,5 +314,4 @@ def post_detail_view(request, post_id):
     elif request.method == "DELETE":
         post.delete()
         return Response({"message": "Post deleted successfully"}, status=status.HTTP_200_OK)
-
 
