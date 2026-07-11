@@ -305,3 +305,33 @@ def unlike_post(request):
     except Users.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
+@api_view(["GET", "PUT", "PATCH", "DELETE"])
+def post_detail_view(request, post_id):
+    try:
+        post = Posts.objects.get(id=post_id)
+    except Posts.DoesNotExist:
+        return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == "GET":
+        serializer = PostsSerializer(post)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method in ["PUT", "PATCH"]:
+        serializer = PostsSerializer(post, data=request.data, partial=True)
+        if serializer.is_valid():
+            post = serializer.save()
+            images = request.FILES.getlist('images')
+            if images:
+                # If new images are uploaded, delete existing post images and replace them
+                PostImage.objects.filter(post=post).delete()
+                for image in images:
+                    PostImage.objects.create(post=post, image=image)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == "DELETE":
+        post.delete()
+        return Response({"message": "Post deleted successfully"}, status=status.HTTP_200_OK)
+
+

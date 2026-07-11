@@ -1,5 +1,5 @@
 import React, { useEffect, useState,useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { postContext } from "../Context/postsContext";
 import Posts from "./posts";
 import { userContext } from "../Context/userContext";
@@ -124,18 +124,30 @@ const FullPost = () => {
           </div>
 
           <div className="flex flex-col gap-1 text-gray-600 text-sm sm:text-base">
-            <span>
-              Writer:{" "}
-              <span className="text-black text-lg font-semibold hover:text-blue-600 border-b-2 border-transparent hover:border-blue-500 transition-all cursor-pointer">
-                {item.author.username}
-              </span>
-            </span>
-            <span>
-              At:{" "}
-              <span className="text-black text-base font-medium">
-                {item.created_at}
-              </span>
-            </span>
+            <div className="flex justify-between items-center w-full">
+              <div>
+                <span>
+                  Writer:{" "}
+                  <span className="text-black text-lg font-semibold hover:text-blue-600 border-b-2 border-transparent hover:border-blue-500 transition-all cursor-pointer">
+                    {item.author.username}
+                  </span>
+                </span>
+                <span className="block mt-1">
+                  At:{" "}
+                  <span className="text-black text-base font-medium">
+                    {item.created_at}
+                  </span>
+                </span>
+              </div>
+              {currentUser && item.author && currentUser.id === item.author.id && (
+                <Link
+                  to={`/editPost/${item.id}`}
+                  className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200 shadow-sm active:scale-95"
+                >
+                  ✏️ Edit Post
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       ))}

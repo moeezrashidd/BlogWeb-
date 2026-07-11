@@ -1,104 +1,210 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { categories } from "../Context/data";
 import TextEditor from "../components/TextEditor";
+import { postContext } from "../Context/postsContext";
+import { userContext } from "../Context/userContext";
+import API_BASE_URL from "../config";
+
 const AddPost = () => {
+  const { id } = useParams();           // present only on /editPost/:id
+  const isEditMode = Boolean(id);
+  const navigate = useNavigate();
+
+  const { postData, setPostData } = useContext(postContext);
+  const { currentUser } = useContext(userContext);
+
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     category: "Technology",
     images: [],
     imagePreviews: [],
+    existingImages: [],
   });
 
+  const [loading, setLoading] = useState(isEditMode); // only show loader in edit mode
+
+  /* ──────────────────────────────────────────
+     In Edit Mode: fetch existing post details
+  ────────────────────────────────────────── */
+  useEffect(() => {
+    if (!isEditMode) return;
+
+    const fetchPost = async () => {
+      try {
+        // Try local context cache first for speed
+        let post = postData.find((p) => p.id === parseInt(id));
+
+        // Always fetch from API to get the absolute latest
+        const res = await fetch(`${API_BASE_URL}/posts/${id}/`);
+        if (res.ok) post = await res.json();
+
+        if (!post) {
+          alert("Post not found.");
+          navigate("/");
+          return;
+        }
+
+        // Verify ownership
+        const authorId = post.author?.id ?? post.username;
+        const loggedInUserId = localStorage.getItem("loggedInUserId");
+        if (loggedInUserId && parseInt(loggedInUserId) !== parseInt(authorId)) {
+          alert("You are not authorised to edit this post.");
+          navigate("/");
+          return;
+        }
+
+        setFormData({
+          title: post.title,
+          content: post.content,
+          category: post.category || "Technology",
+          images: [],
+          imagePreviews: [],
+          existingImages: post.images || [],
+        });
+      } catch (err) {
+        console.error("Error fetching post:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ──────────────────────────────────────────
+     Handlers
+  ────────────────────────────────────────── */
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "images") {
-      const selectedFiles = Array.from(files);
-      const previews = selectedFiles.map((file) => URL.createObjectURL(file));
-      setFormData({
-        ...formData,
-        images: [...formData.images, ...selectedFiles],
-        imagePreviews: [...formData.imagePreviews, ...previews],
-      });
+      const selected = Array.from(files);
+      const previews = selected.map((f) => URL.createObjectURL(f));
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...selected],
+        imagePreviews: [...prev.imagePreviews, ...previews],
+      }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleContentChange = (content) => {
-    setFormData({ ...formData, content });
-  };
+  const handleContentChange = (content) =>
+    setFormData((prev) => ({ ...prev, content }));
 
   const removeImage = (index) => {
-    const newImages = [...formData.images];
-    const newPreviews = [...formData.imagePreviews];
-    newImages.splice(index, 1);
-    newPreviews.splice(index, 1);
-    setFormData({
-      ...formData,
-      images: newImages,
-      imagePreviews: newPreviews,
-    });
+    const imgs = [...formData.images];
+    const prevs = [...formData.imagePreviews];
+    imgs.splice(index, 1);
+    prevs.splice(index, 1);
+    setFormData((prev) => ({ ...prev, images: imgs, imagePreviews: prevs }));
   };
 
+  /* ──────────────────────────────────────────
+     Submit: create OR update
+  ────────────────────────────────────────── */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const userId = localStorage.getItem("loggedInUserId");
     if (!userId) {
-      alert("You must be logged in to create a post.");
+      alert("You must be logged in.");
       return;
     }
 
     const data = new FormData();
-    data.append("username", userId);
+    if (!isEditMode) data.append("username", userId);
     data.append("title", formData.title);
     data.append("content", formData.content);
     data.append("category", formData.category);
+    formData.images.forEach((file) => data.append("images", file));
 
-    formData.images.forEach((file) => {
-      data.append("images", file);
-    });
+    const url = isEditMode
+      ? `${API_BASE_URL}/posts/${id}/`
+      : `${API_BASE_URL}/posts/`;
+    const method = isEditMode ? "PUT" : "POST";
 
     try {
-      const response = await fetch("https://moeezrashidd.pythonanywhere.com/posts/", {
-        method: "POST",
-        body: data,
-      });
+      const response = await fetch(url, { method, body: data });
 
       if (response.ok) {
-        const newPost = await response.json();
-        console.log("Post created successfully:", newPost);
-        
-        // Reset form
-        setFormData({
-          title: "",
-          content: "",
-          category: "Technology",
-          images: [],
-          imagePreviews: [],
-        });
-        alert("Post published successfully!");
+        const result = await response.json();
+
+        if (isEditMode) {
+          // Replace the updated post in global context
+          if (setPostData) {
+            setPostData((prev) =>
+              prev.map((p) => (p.id === parseInt(id) ? result : p))
+            );
+          }
+          alert("Post updated successfully!");
+          navigate(`/post/${id}/${encodeURIComponent(formData.title)}`);
+        } else {
+          // Add new post to context list
+          if (setPostData) {
+            setPostData((prev) => [result, ...prev]);
+          }
+          // Reset form for a new post
+          setFormData({
+            title: "",
+            content: "",
+            category: "Technology",
+            images: [],
+            imagePreviews: [],
+            existingImages: [],
+          });
+          alert("Post published successfully!");
+        }
       } else {
-        const errorData = await response.json();
-        console.error("Failed to create post", errorData);
-        alert("Failed to publish post.");
+        const err = await response.json();
+        console.error("API error:", err);
+        alert(isEditMode ? "Failed to update post." : "Failed to publish post.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred while publishing.");
+      alert("An error occurred. Please try again.");
     }
   };
 
+  // Helper: resolve existing image URLs
+  const getImgUrl = (imgObj) => {
+    const src = imgObj?.image;
+    if (!src) return "";
+    return src.startsWith("http") ? src : `${API_BASE_URL}${src}`;
+  };
+
+  /* ──────────────────────────────────────────
+     Render
+  ────────────────────────────────────────── */
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="text-xl font-semibold text-gray-500 animate-pulse">
+          Loading post…
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10 md:w-screen">
+    <div className="max-w-4xl mx-auto px-4 py-10">
       <h1 className="text-3xl xl:text-5xl font-extrabold text-center text-gray-900 mb-8">
-        Add a <span className="text-blue-600">New Post ✍️</span>
+        {isEditMode ? (
+          <>
+            Edit <span className="text-blue-600">Post ✏️</span>
+          </>
+        ) : (
+          <>
+            Add a <span className="text-blue-600">New Post ✍️</span>
+          </>
+        )}
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white w-full rounded-2xl p-8 space-y-8 border-2 border-gray-200 shadow-xl hover:border-blue-600"
+        className="bg-white w-full rounded-2xl p-8 space-y-8 border-2 border-gray-200 shadow-xl hover:border-blue-600 transition-colors"
       >
         {/* Title */}
         <div>
@@ -133,7 +239,7 @@ const AddPost = () => {
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full px-4  py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2  focus:ring-blue-200 outline-none transition"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
           >
             {categories.map((cat, idx) => (
               <option key={idx} value={cat}>
@@ -143,10 +249,32 @@ const AddPost = () => {
           </select>
         </div>
 
+        {/* Current images (edit mode only) */}
+        {isEditMode && formData.existingImages.length > 0 && (
+          <div>
+            <label className="block text-gray-700 font-semibold mb-2">
+              Current Images
+            </label>
+            <div className="flex flex-wrap gap-4">
+              {formData.existingImages.map((imgObj, idx) => (
+                <img
+                  key={idx}
+                  src={getImgUrl(imgObj)}
+                  alt="Existing"
+                  className="w-32 h-32 object-cover rounded-lg shadow-md border border-gray-200"
+                />
+              ))}
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Uploading new images below will replace the current ones.
+            </p>
+          </div>
+        )}
+
         {/* Image Upload */}
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
-            Upload Images
+            {isEditMode ? "Upload New Images (Optional)" : "Upload Images"}
           </label>
           <div className="flex flex-col gap-4">
             <input
@@ -180,13 +308,22 @@ const AddPost = () => {
           </div>
         </div>
 
-        {/* Submit */}
-        <div className="flex justify-center">
+        {/* Buttons */}
+        <div className="flex justify-center gap-4">
+          {isEditMode && (
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition-all active:scale-95"
+            >
+              Cancel
+            </button>
+          )}
           <button
             type="submit"
             className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg active:scale-95 transition-all"
           >
-            🚀 Publish Post
+            {isEditMode ? "Update Post" : " Publish Post"}
           </button>
         </div>
       </form>
