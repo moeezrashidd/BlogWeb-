@@ -126,6 +126,21 @@ def login_view(request):
         )
 
 
+@api_view(["POST"])
+def logout_view(request):
+    """
+    Logout endpoint.
+    - If Django sessions are enabled this will flush session data.
+    - For the project's current simple auth (frontend stores loggedInUserId), this returns 200 OK.
+    """
+    try:
+        if hasattr(request, "session"):
+            request.session.flush()
+        return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(["GET"])
 def check_follow_status(request):
     actor_id = request.query_params.get("actor_id")
