@@ -8,9 +8,11 @@ import { LuSearchX } from "react-icons/lu";
 import { Link ,useNavigate } from 'react-router-dom';
 import { userContext } from '../Context/userContext';
 import { Plus } from 'lucide-react';
+import axios from 'axios';
+import API_BASE_URL from '../config';
 
 const Navbar = () => {
-  const { currentUser } = useContext(userContext)
+  const { currentUser, setCurrentUser } = useContext(userContext)
   const [SearchText, setSearchText] = useState("")
   const [toggleMenu, setToggleMenu] = useState(false)
   const [toggleSearch, setToggleSearch] = useState(false)
@@ -30,6 +32,23 @@ const Navbar = () => {
         navigate(`/Search/${SearchText}`)
       }
   }
+
+  const handleSignOut = async () => {
+    try {
+      // Call backend logout endpoint (keeps backend in sync if needed)
+      await axios.post(`${API_BASE_URL}/logout/`);
+    } catch (err) {
+      // ignore backend errors for sign out — still proceed to clear client state
+      console.warn('Logout request failed', err?.message || err);
+    }
+
+    // Clear frontend auth state
+    localStorage.removeItem('loggedInUserId');
+    setCurrentUser(null);
+    alert('Signed out successfully');
+    navigate('/signIn');
+  }
+
   return (
     <>
       <nav className='flex justify-between items-center py-4 '>
@@ -63,16 +82,19 @@ const Navbar = () => {
 
         <div className="searchAndSignin flex justify-center items-center gap-1 ">
 
-          <span className='p-1 px-2 font-semibold hover:bg-blue-600  border-2 border-blue-600 hover:text-white text-blue-600  text-2xl cursor-pointer rounded  text justify-center items-center sm:hidden' onClick={() => {
-            setToggleMenu(!toggleMenu)
-            { toggleSearch ? setToggleSearch(!toggleSearch) : setToggleSearch(toggleSearch) }
+          <span className='p-1 px-2 font-semibold hover:bg-blue-600  border-2 border-blue-600 hover:text-white text-blue-600  text-2xl cursor-pointer rounded  text justify-center items-center sm:h[...']
+            onClick={() => {
+              setToggleMenu(!toggleMenu)
+              { toggleSearch ? setToggleSearch(!toggleSearch) : setToggleSearch(toggleSearch) }
 
-          }}>{toggleMenu ? <FaLinesLeaning /> : <IoReorderThreeSharp />}</span>
+            }}>{toggleMenu ? <FaLinesLeaning /> : <IoReorderThreeSharp />}</span>
 
-          <span className='p-1 px-2  hover:bg-blue-600  border-2 border-blue-600 hover:text-white text-blue-600  text-2xl  cursor-pointer rounded  text justify-center font-semibold items-center sm:hidden' onClick={() => {
-            { toggleMenu ? setToggleMenu(!toggleMenu) : setToggleMenu(toggleMenu) }
-            setToggleSearch(!toggleSearch)
-          }}>{toggleSearch ? <LuSearchX /> : <FcSearch />}</span>
+          <span className='p-1 px-2  hover:bg-blue-600  border-2 border-blue-600 hover:text-white text-blue-600  text-2xl  cursor-pointer rounded  text justify-center font-semibold items-center sm[...']
+            onClick={() => {
+              { toggleMenu ? setToggleMenu(!toggleMenu) : setToggleMenu(toggleMenu) }
+              setToggleSearch(!toggleSearch)
+            }}
+          >{toggleSearch ? <LuSearchX /> : <FcSearch />}</span>
 
           {currentUser ? (
             <div className="flex justify-center items-center gap-3 pl-2">
@@ -84,9 +106,16 @@ const Navbar = () => {
                   {currentUser.name ? currentUser.name[0].toUpperCase() : "U"}
                 </div>
               </Link>
+
+              {/* Sign out button */}
+              <button onClick={handleSignOut} className="ml-2 px-3 py-1 border-2 border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white transition">
+                Sign Out
+              </button>
             </div>
           ) : (
-            <span className='p-1 sm:px-2 lg:px-5 hover:bg-blue-600 border-2 border-blue-600 hover:text-white text-blue-600  sm:text-base lg:text-xl cursor-pointer rounded  text justify-center items-center font-semibold'><Link to="/signIn">Sign in</Link></span>
+            <span className='p-1 sm:px-2 lg:px-5 hover:bg-blue-600 border-2 border-blue-600 hover:text-white text-blue-600  sm:text-base lg:text-xl cursor-pointer rounded  text justify-center items-center'>
+              <Link to="/signIn">Sign In</Link>
+            </span>
           )}
         </div>
       </nav>
